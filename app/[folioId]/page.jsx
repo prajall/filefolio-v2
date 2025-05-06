@@ -7,7 +7,7 @@ import { storage } from "../config/config";
 import { motion } from "framer-motion";
 import ShareCode from "./components/ShareCode";
 // import ShareFile from "./components/ShareFile";
-// import ShareImage from "./components/ShareImage";
+import ShareImage from "./components/ShareImage";
 import Navbar2 from "../components/Navbar2";
 
 const FolioPage = ({ params }) => {
@@ -117,7 +117,7 @@ const FolioPage = ({ params }) => {
             className={
               activeTab === "code"
                 ? "mx-1 p-2 font-bold underline underline-offset-8 duration-300"
-                : "mx-1 p-2 duration-300"
+                : "mx-1 p-2 duration-300 cursor-pointer"
             }
           >
             Code
@@ -127,7 +127,7 @@ const FolioPage = ({ params }) => {
             className={
               activeTab === "image"
                 ? "mx-1 p-2 font-bold underline underline-offset-8 duration-300"
-                : "mx-1 p-2 duration-300"
+                : "mx-1 p-2 duration-300 cursor-pointer"
             }
           >
             Images
@@ -137,20 +137,21 @@ const FolioPage = ({ params }) => {
             className={
               activeTab === "file"
                 ? "mx-1 p-2 font-bold underline underline-offset-8 duration-300"
-                : "mx-1 p-2 duration-300"
+                : "mx-1 p-2 duration-300 cursor-pointer"
             }
           >
             Files
           </button>
         </div>
         {activeTab === "code" && <ShareCode data={code} docRef={docRef} />}
-        {/* {activeTab === "image" && (
+        {activeTab === "image" && (
           <ShareImage
             imageList={imageList}
             onUpload={getImages}
             onDownload={downloadFile}
+            folioId={folioId}
           />
-        )} */}
+        )}
         {/* {activeTab === "file" && (
           <ShareFile
             fileList={fileList}

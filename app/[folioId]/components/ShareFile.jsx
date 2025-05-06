@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from "react";
-import {
-  uploadBytes,
-  ref,
-  getDownloadURL,
-  listAll,
-  deleteObject,
-} from "firebase/storage";
-import { storage } from "../config/config";
-import { useParams } from "react-router-dom";
-import { AiFillFile, AiOutlineCloseCircle, AiFillDelete } from "react-icons/ai";
-import { BsPlusCircleDotted } from "react-icons/bs";
-import Alert from "../components/Alert";
+"use client";
+import React, { useState } from "react";
+import { uploadBytes, ref, deleteObject } from "firebase/storage";
+import { storage } from "../../config/config";
+import { useParams } from "next/navigation";
+import { CirclePlus, Trash, File, Download } from "lucide-react";
 import { motion } from "framer-motion";
+import Container from "../../components/Container";
+import Alert from "../components/Alert";
 
-const ShareFile = ({ fileList, onUpload, onDownload }) => {
+const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
   const [files, setFiles] = useState(null);
   const params = useParams().id;
   const [alertStatus, setAlertStatus] = useState("hide");
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingFilesNames, setUploadingFilesNames] = useState("");
 
   const submitHandler = async (e) => {
-    event.preventDefault();
+    e.preventDefault();
     setIsUploading(true);
 
     for (let i = 0; i < files.length; i++) {
@@ -31,8 +27,8 @@ const ShareFile = ({ fileList, onUpload, onDownload }) => {
   };
 
   const uploadFile = async (f) => {
-    console.log(f);
     if (f.size > 104857600) {
+      setAlertType("fail");
       setAlertMessage("File must be less than 100mb");
       setAlertStatus("show");
       setTimeout(() => {
@@ -43,6 +39,7 @@ const ShareFile = ({ fileList, onUpload, onDownload }) => {
     }
     const fileRef = ref(storage, `${params}/files/${f.name}`);
     await uploadBytes(fileRef, f).then(() => {
+      setAlertType("success");
       setAlertMessage("File Uploaded");
       setAlertStatus("show");
       setTimeout(() => {
@@ -56,9 +53,9 @@ const ShareFile = ({ fileList, onUpload, onDownload }) => {
 
   const deleteFile = async (name) => {
     const deleteRef = ref(storage, `${params}/files/${name}`);
-    console.log(name);
     await deleteObject(deleteRef)
       .then(() => {
+        setAlertType("success");
         setAlertMessage("File Deleted");
         setAlertStatus("show");
         setTimeout(() => {
@@ -66,7 +63,8 @@ const ShareFile = ({ fileList, onUpload, onDownload }) => {
         }, 3000);
       })
       .catch((err) => {
-        setAlertMessage(err);
+        setAlertType("fail");
+        setAlertMessage(err.message);
         setAlertStatus("show");
         setTimeout(() => {
           setAlertStatus("hide");
@@ -85,102 +83,106 @@ const ShareFile = ({ fileList, onUpload, onDownload }) => {
 
   return (
     <div>
-      {alertStatus === "show" && <Alert message={alertMessage} />}
-      {/* =========== UPLOAD BUTTON ============== */}
-      <motion.form
-        initial={{ scale: 0.7 }}
-        animate={{ scale: 1, transition: 0.3 }}
-      >
-        {!files && (
-          <label
-            htmlFor="fileUpload"
-            className="flex items-center bg-slate-800 px-4 text-slate-50 hover:scale-110 duration-300 active:scale-100 gap-2 mx-auto cursor-pointer py-2 my-7 rounded-3xl w-fit"
-          >
-            Upload
-            <BsPlusCircleDotted size={"20px"} />
-          </label>
-        )}
-        <input
-          id="fileUpload"
-          type="file"
-          onChange={(e) => {
-            setFiles(e.target.files);
-            joinFileList(e.target.files);
-          }}
-          files={files}
-          className="hidden"
-          multiple
-        />
-        {/* ================== SUBMIT BUTTON =================== */}
-        {files && !isUploading && (
-          <>
-            <div className="flex items-center w-fit m-auto ">
-              <div className="flex item-center justify-between border rounded-lg rounded-r-none px-2 py-1 ">
-                <p className="mr-3 w-[180px] whitespace-nowrap overflow-hidden">
-                  {/* {files.length > 1 && file.name + " , ..."}
-                  {files.length == 1 && file.name} */}
-                  {uploadingFilesNames}
-                </p>
+      {alertStatus === "show" && (
+        <Alert message={alertMessage} type={alertType} />
+      )}
+
+      <Container>
+        <motion.form
+          initial={{ scale: 0.7 }}
+          animate={{ scale: 1, transition: 0.3 }}
+        >
+          {!files && (
+            <label
+              htmlFor="fileUpload"
+              className="flex items-center bg-slate-800 px-4 text-slate-50 hover:scale-110 duration-300 active:scale-100 gap-2 mx-auto cursor-pointer py-2 my-7 rounded-3xl w-fit"
+            >
+              Upload
+              <CirclePlus size={"20px"} />
+            </label>
+          )}
+          <input
+            id="fileUpload"
+            type="file"
+            onChange={(e) => {
+              setFiles(e.target.files);
+              joinFileList(e.target.files);
+            }}
+            files={files}
+            className="hidden"
+            multiple
+          />
+          {files && !isUploading && (
+            <>
+              <div className="flex items-center w-fit m-auto">
+                <div className="flex item-center justify-between border border-slate-900 rounded-lg rounded-r-none px-2 py-1">
+                  <p className="mr-3 w-[180px] whitespace-nowrap overflow-hidden">
+                    {uploadingFilesNames}
+                  </p>
+                  <button onClick={() => setFiles(null)}>
+                    <CirclePlus
+                      size={"20px"}
+                      className="rotate-45 cursor-pointer text-slate-700 hover:text-slate-950"
+                    />
+                  </button>
+                </div>
                 <button
-                  onClick={() => {
-                    setFiles(null);
-                  }}
+                  onClick={submitHandler}
+                  className="text-slate-50 bg-slate-800 text-sm active:bg-slate-800 hover:bg-optional border-2 rounded-lg rounded-l-none border-slate-800 m-1 ml-2 px-3 py-[5px]"
                 >
-                  <AiOutlineCloseCircle size={"20px"} />
+                  Submit
                 </button>
               </div>
-              <button
-                onClick={submitHandler}
-                className="text-slate-50 bg-slate-900 text-sm active:bg-slate-800 border-2 rounded-lg rounded-l-none border-slate-800 m-1 ml-2 px-3 py-[5px]"
-              >
-                Submit
-              </button>
+            </>
+          )}
+
+          {isUploading && (
+            <div className="flex items-center bg-slate-600 px-4 text-slate-50 duration-300 active:scale-100 gap-2 mx-auto cursor-pointer py-2 my-7 rounded-3xl w-fit">
+              Uploading...
             </div>
-          </>
-        )}
+          )}
+        </motion.form>
 
-        {/* ================= UPLOADING BUTTON ====================== */}
-
-        {isUploading && (
-          <div className="flex items-center bg-slate-600 px-4 text-slate-50 duration-300 active:scale-100 gap-2 mx-auto cursor-pointer py-2 my-7 rounded-3xl w-fit">
-            Uploading...
-            {/* <BsPlusCircleDotted size={"20px"} /> */}
+        {fileList.length === 0 && (
+          <div>
+            <p className="text-center opacity-75">Upload your files</p>
           </div>
         )}
-      </motion.form>
-      {fileList.length === 0 && (
-        <div>
-          <p className="text-center opacity-75">Upload your files</p>
-        </div>
-      )}
-      {/* ============= FILE PREVIEWS =============== */}
-      <div className="md:w-1/2 mx-auto">
-        {fileList.map((file) => {
-          return (
+
+        <div className="md:w-1/2 mx-auto">
+          {fileList.map((file) => (
             <motion.div
               key={file.url}
               initial={{ y: 40, opacity: "0.3" }}
               animate={{ y: 0, opacity: 1, transition: 0.6 }}
-              className="flex w-full overflow-x-hidden whitespace-nowrap items-center my-2 cursor-pointer hover:bg-slate-600 hover:bg-opacity-25 rounded-xl p-2 "
-              onClick={() => {
-                onDownload(true, file.name);
-              }}
+              className="group relative flex w-full overflow-x-hidden whitespace-nowrap items-center my-2 hover:bg-slate-600 hover:bg-opacity-25 rounded-xl p-2"
             >
-              <AiFillFile />
+              <File size={"20px"} />
               <p className="ml-1 w-[90%] overflow-x-hidden whitespace-nowrap">
                 {file.name}
               </p>
-              <button
-                // onClick={() => deleteFile(file.name)}
-                // onClick = {()=>{onDownload}}
-                className=" p-1 hover:bg-slate-50 rounded-md hover:bg-opacity-50"
-              >
-                <AiFillDelete size={"20px"} />
-              </button>
+              <div className="flex gap-2">
+                <motion.button
+                  animate={{ y: -5 }}
+                  onClick={() => deleteFile(file.name)}
+                  className="group-hover:flex hidden bg-slate-600 hover:bg-slate-400 hover:bg-opacity-75 bg-opacity-75 text-slate-50 hover:text-slate-800 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
+                  title="Delete file"
+                >
+                  <Trash size={"20px"} />
+                </motion.button>
+                <motion.button
+                  animate={{ y: -5 }}
+                  onClick={() => onDownload(true, file.name)}
+                  className="group-hover:flex hidden bg-slate-600 z-20 hover:bg-slate-400 hover:bg-opacity-75 bg-opacity-75 text-slate-50 hover:text-slate-800 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300 cursor-pointer"
+                  title="Download file"
+                >
+                  <Download size={"20px"} />
+                </motion.button>
+              </div>
             </motion.div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      </Container>
     </div>
   );
 };

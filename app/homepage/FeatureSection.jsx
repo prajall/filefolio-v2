@@ -1,5 +1,5 @@
 import { Upload, LinkIcon, Lock, ArrowRight } from "lucide-react";
-import Container from "./components/Container";
+import Container from "../components/Container";
 import Script from "next/script";
 import Link from "next/link";
 

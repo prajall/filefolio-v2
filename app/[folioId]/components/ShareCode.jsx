@@ -2,31 +2,20 @@
 import React, { useEffect, useState } from "react";
 import { setDoc } from "firebase/firestore";
 // import Alert from "../components/Alert";
-import { Clipboard } from "lucide-react";
+import { Copy } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const ShareCode = ({ data, docRef }) => {
   const [message, setMessage] = useState("");
-  const [alertStatus, setAlertStatus] = useState("hide");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("success");
 
   const handleSubmit = async () => {
     event.preventDefault();
     try {
-      await setDoc(docRef, { message: message });
-      setAlertMessage("Code Updated");
-      setAlertType("success");
-      setAlertStatus("show");
-      setTimeout(() => {
-        setAlertStatus("hide");
-      }, 3000);
+      const response = await setDoc(docRef, { message: message });
+      console.log(response);
+      toast.success("Code updated");
     } catch (error) {
-      setAlertMessage("Failed to update code");
-      setAlertType("success");
-      setAlertStatus("fail");
-      setTimeout(() => {
-        setAlertStatus("hide");
-      }, 3000);
+      toast.error("Error updating code");
     }
   };
 
@@ -62,7 +51,7 @@ const ShareCode = ({ data, docRef }) => {
             title="Copy to clipboard"
             className="absolute top-3 right-3 bg-blue-50 hover:bg-slate-600 hover:text-blue-50 active:bg-slate-800 duration-200 rounded p-1"
           >
-            <Clipboard size={"20px"} />
+            <Copy size={"20px"} />
           </button>
         </div>
 

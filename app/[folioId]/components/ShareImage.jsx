@@ -1,37 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "next/navigation";
 import { uploadBytes, ref, deleteObject } from "firebase/storage";
-import { storage } from "../config/config";
-import Alert from "../components/Alert";
-import { AiOutlineCloseCircle, AiFillDelete } from "react-icons/ai";
-import { BsPlusCircleDotted } from "react-icons/bs";
-import { motion } from "framer-motion";
-import { BiDownload } from "react-icons/bi";
-import Container from "../components/Container";
+import { storage } from "../../config/config";
+import { CirclePlus, Trash } from "lucide-react";
 
-const ShareImage = ({ imageList, onUpload, onDownload }) => {
+import { motion } from "framer-motion";
+import { Download } from "lucide-react";
+import Container from "../../components/Container";
+import toast from "react-hot-toast";
+
+const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
   const [images, setImages] = useState(null);
-  const params = useParams().id;
-  const [alertStatus, setAlertStatus] = useState("hide");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("success");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingImagesNames, setUploadingImagesNames] = useState("");
 
   const submitHandler = async () => {
     event.preventDefault();
     for (let i = 0; i < images.length; i++) {
-      const allowedExtension = ["jpg", "jpeg", "png", "svg", "gif"];
+      const allowedExtension = ["jpg", "jpeg", "png", "svg", "gif", "webp"];
       const imageParts = images[i].name.split(".");
       const imageExtension = imageParts[imageParts.length - 1];
       if (!allowedExtension.includes(imageExtension)) {
-        setAlertType("fail");
-        setAlertMessage("Unsupported image type");
-        setAlertStatus("show");
-        setTimeout(() => {
-          setAlertStatus("hide");
-        }, 3000);
-        setImage(null);
+        toast.error("Unsupported image type.");
+        setImages(null);
         return;
       }
       setIsUploading(true);
@@ -40,31 +31,21 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
     }
   };
   const deleteImage = async (name) => {
-    const deleteRef = ref(storage, `${params}/images/${name}`);
+    const deleteRef = ref(storage, `${folioId}/images/${name}`);
     await deleteObject(deleteRef)
       .then(() => {
-        setAlertType("success");
-        setAlertMessage("Image Deleted");
-        setAlertStatus("show");
-        setTimeout(() => {
-          setAlertStatus("hide");
-        }, 3000);
+        toast.success("Image deleted");
       })
       .catch((err) => {
-        console.log(err);
+        toast.error("Error deleting image");
       });
     onUpload();
   };
   const uploadImage = async (i) => {
-    const imageRef = ref(storage, `${params}/images/${i.name}`);
+    const imageRef = ref(storage, `${folioId}/images/${i.name}`);
 
     await uploadBytes(imageRef, i).then(() => {
-      setAlertType("success");
-      setAlertMessage("Image Uploaded");
-      setAlertStatus("show");
-      setTimeout(() => {
-        setAlertStatus("hide");
-      }, 3000);
+      toast.success("Image uploaded");
     });
     setImages(null);
     onUpload();
@@ -81,9 +62,9 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
   };
   return (
     <div>
-      {alertStatus === "show" && (
+      {/* {alertStatus === "show" && (
         <Alert message={alertMessage} type={alertType} />
-      )}
+      )} */}
 
       <Container>
         <motion.form
@@ -96,7 +77,7 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
               className="flex items-center bg-slate-800 px-4 text-slate-50 hover:scale-110 duration-300 active:scale-100 gap-2 mx-auto cursor-pointer py-2 my-7 rounded-3xl w-fit"
             >
               Upload
-              <BsPlusCircleDotted size={"20px"} />
+              <CirclePlus size={"20px"} />
             </label>
           )}
           <input
@@ -124,7 +105,10 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
                       setImages(null);
                     }}
                   >
-                    <AiOutlineCloseCircle size={"20px"} />
+                    <CirclePlus
+                      size={"20px"}
+                      className="rotate-45 cursor-pointer text-slate-700 hover:text-slate-950"
+                    />
                   </button>
                 </div>
                 <button
@@ -157,7 +141,7 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
             return (
               <motion.div
                 key={image.url}
-                className="group relative mb-5 image-container h-fit flex flex-col w-full mx-auto "
+                className="group relative mb-3 image-container h-fit flex flex-col w-full mx-auto "
                 initial={{ y: 40, opacity: "0.3" }}
                 animate={{ y: 0, opacity: 1, transition: 0.7 }}
               >
@@ -174,9 +158,10 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
                     deleteImage(image.name);
                     // onDownload(false, image.name);
                   }}
-                  className=" group-hover:flex absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-600 hover:bg-slate-400 hover:bg-opacity-75  bg-opacity-75 text-slate-50 hover:text-slate-800 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
+                  title="Delete image"
+                  className=" group-hover:flex cursor-pointer items-center justify-center absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
                 >
-                  <AiFillDelete style={{ margin: "auto" }} size={"20px"} />
+                  <Trash size={"20px"} />
                 </motion.button>
                 <motion.button
                   animate={{ y: -5 }}
@@ -184,10 +169,13 @@ const ShareImage = ({ imageList, onUpload, onDownload }) => {
                     // deleteImage(image.name);
                     onDownload(false, image.name);
                   }}
-                  className="absolute bottom-[10px] left-1/3 translate group-hover:flex items-center gap-2 z-10 hidden bg-slate-800 active:bg-slate-600 bg-opacity-80 hover:bg-opacity-100 text-slate-50 px-6 py-3 rounded-2xl "
+                  // className="absolute bottom-[10px] left-1/3 translate group-hover:flex items-center gap-2 z-10 hidden bg-slate-600 hover:bg-slate-400 hover:bg-opacity-75 bg-opacity-75 text-slate-50 hover:text-slate-800 active:bg-popacity active:text-slate-600 px-6 py-3 rounded-xl duration-300 cursor-pointer"
+
+                  className="group-hover:flex cursor-pointer items-center justify-center absolute bottom-[10px] right-1/2 translate-x-1/2 z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 px-6 py-3  rounded-xl duration-300"
+                  title="Download image"
                 >
                   Download
-                  <BiDownload style={{ margin: "auto" }} size={"20px"} />
+                  <Download size={"20px"} />
                 </motion.button>
                 {/* </div> */}
               </motion.div>

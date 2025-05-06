@@ -1,7 +1,7 @@
 "use client";
 import { Link } from "next/navigation";
 import Logo from "./Logo";
-import Container from "../homepage/components/Container";
+import Container from "./Container";
 
 const Navbar = () => {
   return (
