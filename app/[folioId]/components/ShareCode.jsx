@@ -1,8 +1,8 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { setDoc } from "firebase/firestore";
-import Alert from "../components/Alert";
-import { BiCopy } from "react-icons/bi";
-import { motion } from "framer-motion";
+// import Alert from "../components/Alert";
+import { Clipboard } from "lucide-react";
 
 const ShareCode = ({ data, docRef }) => {
   const [message, setMessage] = useState("");
@@ -40,9 +40,9 @@ const ShareCode = ({ data, docRef }) => {
 
   return (
     <div>
-      {alertStatus === "show" && (
+      {/* {alertStatus === "show" && (
         <Alert message="Code Updated" type={"success"} />
-      )}
+      )} */}
       <form>
         <div className="relative">
           <textarea
@@ -62,7 +62,7 @@ const ShareCode = ({ data, docRef }) => {
             title="Copy to clipboard"
             className="absolute top-3 right-3 bg-blue-50 hover:bg-slate-600 hover:text-blue-50 active:bg-slate-800 duration-200 rounded p-1"
           >
-            <BiCopy size={"20px"} />
+            <Clipboard size={"20px"} />
           </button>
         </div>
 

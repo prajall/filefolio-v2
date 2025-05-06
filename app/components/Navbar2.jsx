@@ -9,9 +9,9 @@ const Navbar2 = () => {
       <div className="w-10/12 mx-auto flex justify-between">
         {/* <Container> */}
         <div className="w-fit">
-          <Link href="/">
-            <Logo />
-          </Link>
+          {/* <Link href="/"> */}
+          <Logo />
+          {/* </Link> */}
         </div>
         {/* </Container> */}
         <div>

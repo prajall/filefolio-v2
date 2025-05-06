@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { BiSolidLockAlt } from "react-icons/bi";
-import { IoMdArrowDropdown } from "react-icons/io";
-import { HiShare } from "react-icons/hi";
+import { Lock } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import { db } from "../config/config";
 import { getDocs, collection, doc, setDoc } from "firebase/firestore";
-import { useParams } from "react-router-dom";
-import Alert from "./Alert";
+import { useParams } from "next/navigation";
+// import Alert from "./Alert";
 
 const Private = () => {
   const [isPrivate, setIsPrivate] = useState(false);
@@ -17,8 +17,8 @@ const Private = () => {
   const [alertType, setAlertType] = useState("");
   // const [alert, setAlert] = useState({ status: "hide", message: "", type: "" });
 
-  const params = useParams().id;
-  const docRef = doc(db, "password", params);
+  const params = useParams();
+  const docRef = doc(db, "password", params.folioId);
   const collectionRef = collection(db, "password");
 
   const getPrivate = async () => {
@@ -70,9 +70,9 @@ const Private = () => {
 
   return (
     <>
-      {alertStatus === "show" && (
+      {/* {alertStatus === "show" && (
         <Alert message={alertMessage} type={alertType} />
-      )}
+      )} */}
       <div className="flex gap-2">
         <div className="private-folio border-2 lg:border-none rounded-xl">
           <button
@@ -81,9 +81,9 @@ const Private = () => {
           >
             <div className="hidden lg:flex">Private Folio</div>
             <div className="flex lg:hidden">
-              <BiSolidLockAlt />
+              <Lock />
             </div>
-            <IoMdArrowDropdown size={"20px"} />
+            <ChevronDown size={"20px"} />
           </button>
 
           {dropdown && (
@@ -132,7 +132,7 @@ const Private = () => {
           onClick={shareLink}
           className="copy-link flex items-center bg-slate-800 hover:bg-opacity-90 duration-300 px-4 rounded-xl text-slate-50"
         >
-          <HiShare />
+          <Copy />
           <p className="ml-1 hidden lg:flex ">Copy Link</p>
         </button>
       </div>
