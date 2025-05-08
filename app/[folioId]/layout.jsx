@@ -4,14 +4,13 @@ import { db } from "../config/config";
 import { getDocs, collection } from "firebase/firestore";
 import { Lock } from "lucide-react";
 import Navbar from "../components/Navbar";
-// import Alert from "../components/Alert";
+import toast from "react-hot-toast";
 
 export default function FolioLayout({ children, params }) {
   const [password, setPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(null);
   const [unlock, setUnlock] = useState(null);
   const [passwordInput, setPasswordInput] = useState("");
-  const [alertStatus, setAlertStatus] = useState("hide");
 
   const { folioId } = React.use(params);
   const passwordCollectionRef = collection(db, "password");
@@ -43,10 +42,7 @@ export default function FolioLayout({ children, params }) {
     if (passwordInput === password) {
       setUnlock(true);
     } else {
-      setAlertStatus("show");
-      setTimeout(() => {
-        setAlertStatus("hide");
-      }, 3000);
+      toast.error("incorrect password");
       setPasswordInput("");
     }
   };
@@ -68,12 +64,9 @@ export default function FolioLayout({ children, params }) {
       <div>
         <Navbar />
         <div className="w-full h-screen fixed top-0 flex justify-center items-center">
-          {/* {alertStatus === "show" && (
-            <Alert message={"incorrect password"} type={"fail"} />
-          )} */}
           <div className="password-container w-[300px] md:w-[400px] lg:w-[500px] border-2 rounded-xl px-2 py-5 justify-center text-center">
-            <h3 className="text-2xl mb-2 font-bold flex items-center justify-center">
-              <Lock />
+            <h3 className="text-2xl mb-2 font-bold flex gap-2 items-center justify-center">
+              <Lock size={20} />
               Locked Folio
             </h3>
             <p>
@@ -92,7 +85,7 @@ export default function FolioLayout({ children, params }) {
               />
               <button
                 type="submit"
-                className="py-1 px-2 bg-slate-900 text-primary w-full rounded-lg mt-3"
+                className="py-1 px-2 bg-slate-900 text-white w-full rounded-lg mt-3 cursor-pointer"
               >
                 Submit
               </button>

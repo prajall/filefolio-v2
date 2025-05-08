@@ -136,6 +136,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
           </div>
         )}
 
+        {/* ======================= Image List ======================= */}
         <div className="masonry mt-6 ">
           {imageList.map((image) => {
             return (
@@ -159,7 +160,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
                     // onDownload(false, image.name);
                   }}
                   title="Delete image"
-                  className=" group-hover:flex cursor-pointer items-center justify-center absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
+                  className=" group-hover:flex hidden cursor-pointer items-center justify-center absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75 bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
                 >
                   <Trash size={"20px"} />
                 </motion.button>
@@ -169,9 +170,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
                     // deleteImage(image.name);
                     onDownload(false, image.name);
                   }}
-                  // className="absolute bottom-[10px] left-1/3 translate group-hover:flex items-center gap-2 z-10 hidden bg-slate-600 hover:bg-slate-400 hover:bg-opacity-75 bg-opacity-75 text-slate-50 hover:text-slate-800 active:bg-popacity active:text-slate-600 px-6 py-3 rounded-xl duration-300 cursor-pointer"
-
-                  className="group-hover:flex cursor-pointer items-center justify-center absolute bottom-[10px] right-1/2 translate-x-1/2 z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 px-6 py-3  rounded-xl duration-300"
+                  className="group-hover:flex hidden gap-2 cursor-pointer items-center justify-center absolute bottom-[10px] right-1/2 translate-x-1/2 z-10 bg-slate-800/70 hover:bg-slate-700  hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 px-6 py-3  rounded-xl duration-300"
                   title="Download image"
                 >
                   Download

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { db } from "../config/config";
 import { getDocs, collection, doc, setDoc } from "firebase/firestore";
 import { useParams } from "next/navigation";
+import toast from "react-hot-toast";
 // import Alert from "./Alert";
 
 const Private = () => {
@@ -38,12 +39,7 @@ const Private = () => {
   const handleSave = () => {
     setDoc(docRef, { private: isPrivate, password: password });
     setDropdown(false);
-    setAlertMessage("Saved");
-    setAlertType("success");
-    setAlertStatus("show");
-    setTimeout(() => {
-      setAlertStatus("hide");
-    }, 3000);
+    toast.success("Saved");
   };
   const handleCheckbox = (e) => {
     setIsPrivate(e.target.checked);
@@ -56,12 +52,7 @@ const Private = () => {
 
   const shareLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    setAlertMessage("Copied to clipboard");
-    setAlertType("success");
-    setAlertStatus("show");
-    setTimeout(() => {
-      setAlertStatus("hide");
-    }, 3000);
+    toast.success("Link copied to clipboard");
   };
 
   useEffect(() => {
@@ -74,16 +65,16 @@ const Private = () => {
         <Alert message={alertMessage} type={alertType} />
       )} */}
       <div className="flex gap-2">
-        <div className="private-folio border-2 lg:border-none rounded-xl">
+        <div className="private-folio border-2 lg:border-none rounded-xl p-1">
           <button
             onClick={handleDropdown}
             className="flex p-1 rounded-lg items-center"
           >
             <div className="hidden lg:flex">Private Folio</div>
             <div className="flex lg:hidden">
-              <Lock />
+              <Lock size={"16px"} />
             </div>
-            <ChevronDown size={"20px"} />
+            <ChevronDown size={"16px"} />
           </button>
 
           {dropdown && (
@@ -132,8 +123,8 @@ const Private = () => {
           onClick={shareLink}
           className="copy-link flex items-center bg-slate-800 hover:bg-opacity-90 duration-300 px-4 rounded-xl text-slate-50"
         >
-          <Copy />
-          <p className="ml-1 hidden lg:flex ">Copy Link</p>
+          <Copy size={"16px"} />
+          <p className="ml-2 hidden lg:flex ">Copy Link</p>
         </button>
       </div>
     </>

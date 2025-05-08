@@ -6,15 +6,16 @@ import { ref, getDownloadURL, listAll } from "firebase/storage";
 import { storage } from "../config/config";
 import { motion } from "framer-motion";
 import ShareCode from "./components/ShareCode";
-// import ShareFile from "./components/ShareFile";
+import ShareFile from "./components/ShareFile";
 import ShareImage from "./components/ShareImage";
 import Navbar2 from "../components/Navbar2";
+import toast from "react-hot-toast";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
   const [imageList, setImageList] = useState([]);
   const [fileList, setFileList] = useState([]);
-  const [activeTab, setActiveTab] = useState("image");
+  const [activeTab, setActiveTab] = useState("code");
 
   const { folioId } = React.use(params);
   const collectionRef = collection(db, "folio");
@@ -35,10 +36,11 @@ const FolioPage = ({ params }) => {
   };
 
   const getImages = async () => {
+    toast.loading("Loading Images...");
     const folderRef = ref(storage, `${folioId}/images`);
-
     try {
       const response = await listAll(folderRef);
+      console.log("Response", response);
       const imagePromises = response.items.map(async (item) => {
         const url = await getDownloadURL(item);
         return { url: url, name: item.name };
@@ -48,9 +50,11 @@ const FolioPage = ({ params }) => {
     } catch (error) {
       console.error("Error:", error);
     }
+    toast.dismiss();
   };
 
   const getFiles = async () => {
+    toast.loading("Loading Files...");
     const folderRef = ref(storage, `${folioId}/files`);
 
     try {
@@ -64,6 +68,7 @@ const FolioPage = ({ params }) => {
     } catch (error) {
       console.error("Error:", error);
     }
+    toast.dismiss();
   };
 
   const downloadFile = async (isFile, fileName) => {
@@ -152,13 +157,13 @@ const FolioPage = ({ params }) => {
             folioId={folioId}
           />
         )}
-        {/* {activeTab === "file" && (
+        {activeTab === "file" && (
           <ShareFile
             fileList={fileList}
             onUpload={getFiles}
             onDownload={downloadFile}
           />
-        )} */}
+        )}
       </motion.div>
     </>
   );
