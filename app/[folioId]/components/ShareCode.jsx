@@ -57,7 +57,8 @@ const ShareCode = ({ data, docRef }) => {
 
         <button
           onClick={handleSubmit}
-          className="border px-2 py-1 mb-4 rounded bg-slate-800 text-blue-50"
+          type="submit"
+          className="border px-4 py-1 mb-4 hover:bg-slate-900 active:bg-slate-950 rounded-md bg-slate-800 text-blue-50 cursor-pointer"
         >
           Submit
         </button>
