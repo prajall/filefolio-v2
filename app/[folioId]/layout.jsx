@@ -5,17 +5,20 @@ import { getDocs, collection } from "firebase/firestore";
 import { Lock } from "lucide-react";
 import Navbar from "../components/Navbar";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { set } from "mongoose";
 
 export default function FolioLayout({ children, params }) {
   const [password, setPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(null);
-  const [unlock, setUnlock] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [unlock, setUnlock] = useState(null);
   const [passwordInput, setPasswordInput] = useState("");
 
   const { folioId } = React.use(params);
   const passwordCollectionRef = collection(db, "password");
 
-  const checkPrivacy = async () => {
+  const checkPrivacy2 = async () => {
     console.log("Checking privacy for folioId:", folioId);
     const data = await getDocs(passwordCollectionRef);
     let databaseExist = false;
@@ -38,6 +41,33 @@ export default function FolioLayout({ children, params }) {
     });
   };
 
+  const checkPrivacy = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("/api/folio", {
+        params: { folioId },
+      });
+      console.log("Folio response:", response.data);
+      if (response.data?.folio) {
+        const { password, locked } = response.data.folio;
+        setPassword(password);
+        setIsPrivate(locked);
+        if (locked) {
+          setUnlock(false);
+        } else {
+          setUnlock(true);
+        }
+      } else {
+        throw new Error("Folio not found");
+      }
+    } catch (error) {
+      console.error("Error fetching folio privacy:", error);
+      toast.error("Failed to fetch folio privacy");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (passwordInput === password) {
@@ -49,21 +79,23 @@ export default function FolioLayout({ children, params }) {
   };
 
   useEffect(() => {
-    // checkPrivacy();
+    checkPrivacy();
   }, []);
 
-  if (unlock === null) {
-    return (
-      <div className="w-full h-screen fixed top-0 flex justify-center items-center">
-        Loading
-      </div>
-    );
-  }
-
-  if (unlock === false) {
-    return (
-      <div>
-        <Navbar />
+  return (
+    <div>
+      {!unlock && <Navbar />}
+      {loading && (
+        <div className="w-full h-[90vh] fixed top-0 flex justify-center items-center text-slate-900">
+          Loading...
+        </div>
+      )}
+      {unlock === null && !loading && (
+        <div className="w-full h-screen fixed top-0 flex justify-center items-center">
+          Error Generating this Page :(
+        </div>
+      )}
+      {unlock === false && !loading && (
         <div className="w-full h-screen fixed top-0 flex justify-center items-center">
           <div className="password-container w-[300px] md:w-[400px] lg:w-[500px] border-2 rounded-xl px-2 py-5 justify-center text-center">
             <h3 className="text-2xl mb-2 font-bold flex gap-2 items-center justify-center">
@@ -93,9 +125,8 @@ export default function FolioLayout({ children, params }) {
             </form>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return children;
+      )}
+      {unlock === true && !loading && children}
+    </div>
+  );
 }

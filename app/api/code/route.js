@@ -1,15 +1,16 @@
 import Folio from "../models/folio.model";
+import Code from "../models/code.model";
 import { connectDB } from "../utils/db";
 
-const createFolio = async (folioId) => {
+export const createCode = async (folioId, code = "") => {
   try {
     await connectDB();
-    const folio = new Folio({ folioId });
-    await folio.save();
-    console.log("Folio created:", folio);
-    return folio;
+    const codeDoc = new Code({ folioId, code });
+    await codeDoc.save();
+    console.log("Code created:", codeDoc);
+    return codeDoc;
   } catch (error) {
-    console.error("Error creating folio:", error);
+    console.error("Error creating code:", error);
     throw error;
   }
 };
@@ -28,18 +29,13 @@ export const GET = async (request) => {
     console.log("Fetching code for folioId:", folioId);
     console.log("Folio model:", Folio);
 
-    const code = await Folio.findOne({ folioId });
+    const code = await Code.findOne({ folioId });
     if (!code) {
-      await createFolio(folioId);
-      return new Response(JSON.stringify({ code: "" }), {
-        status: 201,
-      });
+      return Response.json({ code: "" }, { status: 201 });
     }
-    return new Response(JSON.stringify({ code }), { status: 200 });
+    return Response.json({ code }, { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+    return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 };
 
@@ -56,24 +52,19 @@ export const POST = async (request) => {
         }
       );
     }
-
-    const existingFolio = await Folio.findOne({ folioId });
-    if (!existingFolio) {
-      await createFolio(folioId);
+    const existingCodeDoc = await Code.findOne({ folioId });
+    if (!existingCodeDoc) {
+      await createCode(folioId);
     }
 
-    const updatedFolio = await Folio.findOneAndUpdate(
+    const updatedCode = await Code.findOneAndUpdate(
       { folioId },
       { code },
       { new: true, upsert: true }
     );
 
-    return new Response(JSON.stringify({ code: updatedFolio.code }), {
-      status: 200,
-    });
+    return Response.json({ code: updatedCode.code }, { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+    return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 };
