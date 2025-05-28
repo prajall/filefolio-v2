@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.817.0",
+    "@aws-sdk/s3-request-presigner": "^3.817.0",
+    "axios": "^1.9.0",
     "firebase": "^11.6.1",
     "framer-motion": "^12.9.4",
     "lucide-react": "^0.507.0",
+    "mongoose": "^8.15.1",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

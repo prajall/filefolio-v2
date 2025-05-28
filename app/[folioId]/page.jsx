@@ -10,6 +10,7 @@ import ShareFile from "./components/ShareFile";
 import ShareImage from "./components/ShareImage";
 import Navbar2 from "../components/Navbar2";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
@@ -92,10 +93,27 @@ const FolioPage = ({ params }) => {
     }
   };
 
+  const getCode = async () => {
+    console.log("Fetching code from client for folioId:", folioId);
+    try {
+      const response = await axios.get("/api/code", {
+        params: { folioId },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Response:", response);
+    } catch (error) {
+      console.error("Error fetching code:", error);
+      toast.error("Failed to fetch code.");
+    }
+  };
+
   useEffect(() => {
-    getFolio();
-    getImages();
-    getFiles();
+    // getFolio();
+    // getImages();
+    // getFiles();
+    getCode();
   }, []);
 
   useEffect(() => {

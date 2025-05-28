@@ -9,13 +9,14 @@ import toast from "react-hot-toast";
 export default function FolioLayout({ children, params }) {
   const [password, setPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(null);
-  const [unlock, setUnlock] = useState(null);
+  const [unlock, setUnlock] = useState(true);
   const [passwordInput, setPasswordInput] = useState("");
 
   const { folioId } = React.use(params);
   const passwordCollectionRef = collection(db, "password");
 
   const checkPrivacy = async () => {
+    console.log("Checking privacy for folioId:", folioId);
     const data = await getDocs(passwordCollectionRef);
     let databaseExist = false;
     const filteredData = data.docs.map((doc) => ({
@@ -48,7 +49,7 @@ export default function FolioLayout({ children, params }) {
   };
 
   useEffect(() => {
-    checkPrivacy();
+    // checkPrivacy();
   }, []);
 
   if (unlock === null) {
