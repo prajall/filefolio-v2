@@ -20,6 +20,7 @@ export const GET = async (request) => {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const folioId = searchParams.get("folioId");
+    console.log("Received folioId:", folioId);
 
     if (!folioId) {
       return new Response(JSON.stringify({ error: "folioId is required" }), {
@@ -29,11 +30,11 @@ export const GET = async (request) => {
     console.log("Fetching code for folioId:", folioId);
     console.log("Folio model:", Folio);
 
-    const code = await Code.findOne({ folioId });
+    const code = await Code.findOne({ folioId }).select("code -_id");
     if (!code) {
-      return Response.json({ code: "" }, { status: 201 });
+      return Response.json({ code: "" }, { status: 200 });
     }
-    return Response.json({ code }, { status: 200 });
+    return Response.json(code, { status: 200 });
   } catch (error) {
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }

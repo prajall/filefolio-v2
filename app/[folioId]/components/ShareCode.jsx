@@ -4,14 +4,18 @@ import { setDoc } from "firebase/firestore";
 // import Alert from "../components/Alert";
 import { Copy } from "lucide-react";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
-const ShareCode = ({ data, docRef }) => {
+const ShareCode = ({ data, folioId }) => {
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
     event.preventDefault();
     try {
-      const response = await setDoc(docRef, { message: message });
+      const response = await axios.post("/api/code", {
+        folioId,
+        code: message,
+      });
       console.log(response);
       toast.success("Code updated");
     } catch (error) {
@@ -20,19 +24,17 @@ const ShareCode = ({ data, docRef }) => {
   };
 
   useEffect(() => {
-    setMessage(data.message);
+    console.log("Data received in ShareCode:", data);
+    setMessage(data);
   }, [data]);
 
   useEffect(() => {
-    setMessage(data.message);
+    setMessage(data);
   }, []);
 
   return (
     <div>
-      {/* {alertStatus === "show" && (
-        <Alert message="Code Updated" type={"success"} />
-      )} */}
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="relative">
           <textarea
             onChange={(e) => {
@@ -56,7 +58,7 @@ const ShareCode = ({ data, docRef }) => {
         </div>
 
         <button
-          onClick={handleSubmit}
+          // onClick={handleSubmit}
           type="submit"
           className="border px-4 py-1 mb-4 hover:bg-slate-900 active:bg-slate-950 rounded-md bg-slate-800 text-blue-50 cursor-pointer"
         >

@@ -23,19 +23,39 @@ const FolioPage = ({ params }) => {
   const docRef = doc(db, "folio", folioId);
   const passwordCollectionRef = collection(db, "password");
 
-  const getFolio = async () => {
-    const data = await getDocs(passwordCollectionRef);
-    const filteredData = data.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    filteredData.forEach((data) => {
-      if (data.id === folioId) {
-        setCode(data);
-      }
-    });
-  };
+  // const getFolio = async () => {
+  //   const data = await getDocs(passwordCollectionRef);
+  //   const filteredData = data.docs.map((doc) => ({
+  //     ...doc.data(),
+  //     id: doc.id,
+  //   }));
+  //   filteredData.forEach((data) => {
+  //     if (data.id === folioId) {
+  //       setCode(data);
+  //     }
+  //   });
+  // };
 
+  const getCode = async () => {
+    console.log("Fetching code from client for folioId:", folioId);
+    try {
+      const response = await axios.get("/api/code", {
+        params: { folioId },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Response:", response);
+
+      setCode(response.data?.code);
+    } catch (error) {
+      console.error("Error fetching code:", error);
+      toast.error("Failed to fetch code.");
+    }
+  };
+  useEffect(() => {
+    console.log("Code data:", code);
+  }, [code, setCode]);
   const getImages = async () => {
     toast.loading("Loading Images...");
     const folderRef = ref(storage, `${folioId}/images`);
@@ -93,21 +113,21 @@ const FolioPage = ({ params }) => {
     }
   };
 
-  const getCode = async () => {
-    console.log("Fetching code from client for folioId:", folioId);
-    try {
-      const response = await axios.get("/api/code", {
-        params: { folioId },
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("Response:", response);
-    } catch (error) {
-      console.error("Error fetching code:", error);
-      toast.error("Failed to fetch code.");
-    }
-  };
+  // const getCode = async () => {
+  //   console.log("Fetching code from client for folioId:", folioId);
+  //   try {
+  //     const response = await axios.get("/api/code", {
+  //       params: { folioId },
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     console.log("Response:", response);
+  //   } catch (error) {
+  //     console.error("Error fetching code:", error);
+  //     toast.error("Failed to fetch code.");
+  //   }
+  // };
 
   useEffect(() => {
     // getFolio();
@@ -166,7 +186,7 @@ const FolioPage = ({ params }) => {
             Files
           </button>
         </div>
-        {activeTab === "code" && <ShareCode data={code} docRef={docRef} />}
+        {activeTab === "code" && <ShareCode data={code} folioId={folioId} />}
         {activeTab === "image" && (
           <ShareImage
             imageList={imageList}
