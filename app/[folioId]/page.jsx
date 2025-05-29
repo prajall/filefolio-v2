@@ -11,6 +11,7 @@ import ShareImage from "./components/ShareImage";
 import Navbar2 from "../components/Navbar2";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { get } from "mongoose";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
@@ -54,24 +55,41 @@ const FolioPage = ({ params }) => {
     }
   };
 
-  const getImages = async () => {
-    toast.loading("Loading Images...");
-    const folderRef = ref(storage, `${folioId}/images`);
-    try {
-      const response = await listAll(folderRef);
-      console.log("Response", response);
-      const imagePromises = response.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        return { url: url, name: item.name };
-      });
-      const images = await Promise.all(imagePromises);
-      setImageList(images);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    toast.dismiss();
-  };
+  // const getImages = async () => {
+  //   toast.loading("Loading Images...");
+  //   const folderRef = ref(storage, `${folioId}/images`);
+  //   try {
+  //     const response = await listAll(folderRef);
+  //     console.log("Response", response);
+  //     const imagePromises = response.items.map(async (item) => {
+  //       const url = await getDownloadURL(item);
+  //       return { url: url, name: item.name };
+  //     });
+  //     const images = await Promise.all(imagePromises);
+  //     setImageList(images);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  //   toast.dismiss();
+  // };
 
+  const getImages = async () => {
+    // toast.loading("Loading Images...");
+    try {
+      const response = await axios.get("/api/image", {
+        params: { folder: `${folioId}/images` },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Response of fetch Images:", response);
+      setImageList(response.data?.urls || []);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      toast.error("Failed to fetch images.");
+    }
+    // toast.dismiss();
+  };
   const getFiles = async () => {
     toast.loading("Loading Files...");
     const folderRef = ref(storage, `${folioId}/files`);
@@ -131,9 +149,11 @@ const FolioPage = ({ params }) => {
     if (!folioId) return;
 
     getCode(); // fetch immediately on mount
+    getImages(); // fetch images on mount
 
     const interval = setInterval(() => {
       getCode();
+      getImages(); // fetch images every 5 seconds
     }, 5000);
 
     return () => clearInterval(interval); // cleanup on unmount
