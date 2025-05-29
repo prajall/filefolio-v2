@@ -68,7 +68,7 @@ const Private = () => {
         <div className="private-folio border-2 lg:border-none rounded-xl p-1">
           <button
             onClick={handleDropdown}
-            className="flex p-1 rounded-lg items-center"
+            className="flex p-1 rounded-lg items-center cursor-pointer"
           >
             <div className="hidden lg:flex">Private Folio</div>
             <div className="flex lg:hidden">
@@ -121,7 +121,7 @@ const Private = () => {
         </div>
         <button
           onClick={shareLink}
-          className="copy-link flex items-center bg-slate-800 hover:bg-opacity-90 duration-300 px-4 rounded-xl text-slate-50"
+          className="copy-link  flex items-center bg-slate-800 hover:bg-slate-900 active:bg-slate-950 hover:bg-opacity-90 duration-300 px-4 rounded-xl cursor-pointer text-slate-50"
         >
           <Copy size={"16px"} />
           <p className="ml-2 hidden lg:flex ">Copy Link</p>

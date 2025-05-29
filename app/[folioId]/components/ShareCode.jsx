@@ -19,6 +19,7 @@ const ShareCode = ({ data, folioId }) => {
       console.log(response);
       toast.success("Code updated");
     } catch (error) {
+      console.log(error);
       toast.error("Error updating code");
     }
   };
@@ -58,7 +59,6 @@ const ShareCode = ({ data, folioId }) => {
         </div>
 
         <button
-          // onClick={handleSubmit}
           type="submit"
           className="border px-4 py-1 mb-4 hover:bg-slate-900 active:bg-slate-950 rounded-md bg-slate-800 text-blue-50 cursor-pointer"
         >

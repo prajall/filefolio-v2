@@ -45,7 +45,7 @@ export const POST = async (request) => {
     await connectDB();
     const { folioId, code } = await request.json();
 
-    if (!folioId || !code) {
+    if (!folioId) {
       return new Response(
         JSON.stringify({ error: "folioId and code are required" }),
         {

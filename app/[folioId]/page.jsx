@@ -53,9 +53,7 @@ const FolioPage = ({ params }) => {
       toast.error("Failed to fetch code.");
     }
   };
-  useEffect(() => {
-    console.log("Code data:", code);
-  }, [code, setCode]);
+
   const getImages = async () => {
     toast.loading("Loading Images...");
     const folderRef = ref(storage, `${folioId}/images`);
@@ -130,11 +128,16 @@ const FolioPage = ({ params }) => {
   // };
 
   useEffect(() => {
-    // getFolio();
-    // getImages();
-    // getFiles();
-    getCode();
-  }, []);
+    if (!folioId) return;
+
+    getCode(); // fetch immediately on mount
+
+    const interval = setInterval(() => {
+      getCode();
+    }, 5000);
+
+    return () => clearInterval(interval); // cleanup on unmount
+  }, [folioId]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
