@@ -25,7 +25,8 @@
     "**/*.ts",
     "**/*.tsx",
     "app/api/image/route.js",
-    "app/api/code/route.js"
+    "app/api/code/route.js",
+    "app/api/image/download/route.js"
   ],
   "exclude": ["node_modules"],
   "paths": {

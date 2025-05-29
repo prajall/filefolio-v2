@@ -67,6 +67,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
     event.preventDefault();
     uploadImages();
   };
+
   const deleteImage = async (name) => {
     const deleteRef = ref(storage, `${folioId}/images/${name}`);
     await deleteObject(deleteRef)
@@ -78,16 +79,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
       });
     onUpload();
   };
-  const uploadImage = async (i) => {
-    const imageRef = ref(storage, `${folioId}/images/${i.name}`);
 
-    await uploadBytes(imageRef, i).then(() => {
-      toast.success("Image uploaded");
-    });
-    setImages(null);
-    onUpload();
-    setIsUploading(false);
-  };
   const joinImageList = (List) => {
     console.log(List);
     let list = List[0].name;
@@ -209,7 +201,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
                   animate={{ y: -5 }}
                   onClick={() => {
                     // deleteImage(image.name);
-                    onDownload(false, image.name);
+                    onDownload(image);
                   }}
                   className="group-hover:flex hidden gap-2 cursor-pointer items-center justify-center absolute bottom-[10px] right-1/2 translate-x-1/2 z-10 bg-slate-800/70 hover:bg-slate-700  hover:bg-opacity-75  bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 px-6 py-3  rounded-xl duration-300"
                   title="Download image"
@@ -228,3 +220,18 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
 };
 
 export default ShareImage;
+
+export function extractS3PathParts(url) {
+  try {
+    const { pathname } = new URL(url); // e.g., "/test/images/20250409_080511.jpg"
+    const parts = pathname.slice(1).split("/"); // remove leading slash and split
+
+    const filename = parts.pop(); // last part is the filename
+    const folder = parts.join("/"); // remaining parts are the folder path
+
+    return { folder, filename };
+  } catch (error) {
+    console.error("Invalid S3 URL:", error);
+    return { folder: null, filename: null };
+  }
+}

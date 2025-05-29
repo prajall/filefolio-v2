@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
@@ -87,3 +88,34 @@ export const listImagesFromFolder = async (folderPrefix) => {
     throw error;
   }
 };
+
+export const streamFileFromS3 = async (spaceId, filename) => {
+  const command = new GetObjectCommand({
+    Bucket: "filefolio-prajalmaharjan",
+    Key: `${spaceId}/${filename}`,
+  });
+
+  const response = await s3Client.send(command);
+  const stream = response.Body;
+
+  return {
+    stream,
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
+  };
+};
+
+export async function deleteFileFromS3(folder, filename) {
+  const Key = `${folder}/${filename}`;
+
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: "filefolio-prajalmaharjan",
+      Key,
+    });
+
+    await s3.send(command);
+  } catch (error) {
+    throw error;
+  }
+}

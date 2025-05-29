@@ -20,22 +20,7 @@ const FolioPage = ({ params }) => {
   const [activeTab, setActiveTab] = useState("code");
 
   const { folioId } = React.use(params);
-  const collectionRef = collection(db, "folio");
   const docRef = doc(db, "folio", folioId);
-  const passwordCollectionRef = collection(db, "password");
-
-  // const getFolio = async () => {
-  //   const data = await getDocs(passwordCollectionRef);
-  //   const filteredData = data.docs.map((doc) => ({
-  //     ...doc.data(),
-  //     id: doc.id,
-  //   }));
-  //   filteredData.forEach((data) => {
-  //     if (data.id === folioId) {
-  //       setCode(data);
-  //     }
-  //   });
-  // };
 
   const getCode = async () => {
     console.log("Fetching code from client for folioId:", folioId);
@@ -54,24 +39,6 @@ const FolioPage = ({ params }) => {
       toast.error("Failed to fetch code.");
     }
   };
-
-  // const getImages = async () => {
-  //   toast.loading("Loading Images...");
-  //   const folderRef = ref(storage, `${folioId}/images`);
-  //   try {
-  //     const response = await listAll(folderRef);
-  //     console.log("Response", response);
-  //     const imagePromises = response.items.map(async (item) => {
-  //       const url = await getDownloadURL(item);
-  //       return { url: url, name: item.name };
-  //     });
-  //     const images = await Promise.all(imagePromises);
-  //     setImageList(images);
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  //   toast.dismiss();
-  // };
 
   const getImages = async () => {
     // toast.loading("Loading Images...");
@@ -108,48 +75,95 @@ const FolioPage = ({ params }) => {
     toast.dismiss();
   };
 
-  const downloadFile = async (isFile, fileName) => {
+  const downloadFile = async (url) => {
     try {
-      const filePath = `${folioId}/${isFile ? "files" : "images"}/${fileName}`;
-      const fileRef = ref(storage, filePath);
-      const url = await getDownloadURL(fileRef);
+      const { folder, filename } = await extractS3PathParts(url);
 
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      console.log("Extracted folder:", folder, "filename:", filename);
 
+      if (!folder || !filename) {
+        toast.error("Invalid file URL.");
+        return;
+      }
+
+      // Hit your backend API that streams the file from S3
+      const res = await fetch(
+        `/api/download?folder=${folder}&filename=${filename}`
+      );
+      console.log(res);
+      if (!res.ok) {
+        toast.error("Failed to download file.");
+        return;
+      }
+
+      const blob = await res.blob(); // Convert stream to Blob
+
+      // Create a temporary <a> element to trigger download
+      const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = fileName;
+      a.href = downloadUrl;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      a.remove();
+
+      URL.revokeObjectURL(downloadUrl); // Clean up
     } catch (error) {
       console.error("Download failed:", error);
+      toast.error("Something went wrong while downloading.");
     }
   };
 
-  // const getCode = async () => {
-  //   console.log("Fetching code from client for folioId:", folioId);
-  //   try {
-  //     const response = await axios.get("/api/code", {
-  //       params: { folioId },
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //     console.log("Response:", response);
-  //   } catch (error) {
-  //     console.error("Error fetching code:", error);
-  //     toast.error("Failed to fetch code.");
-  //   }
-  // };
+  const deleteFile = async (url) => {
+    try {
+      const { folder, filename } = extractS3PathParts(url);
+
+      if (!folder || !filename) {
+        toast.error("Invalid file URL.");
+        return;
+      }
+
+      const res = await fetch(
+        `/api/delete?folder=${folder}&filename=${encodeURIComponent(filename)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Delete failed.");
+        return;
+      }
+
+      toast.success("File deleted successfully.");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast.error("Something went wrong while deleting.");
+    }
+  };
+
+  const extractS3PathParts = async (url) => {
+    try {
+      const { pathname } = new URL(url); // e.g., "/test/images/20250409_080511.jpg"
+      const parts = pathname.slice(1).split("/"); // remove leading slash and split
+
+      const filename = parts.pop(); // last part is the filename
+      const folder = parts.join("/"); // remaining parts are the folder path
+
+      return { folder, filename };
+    } catch (error) {
+      console.error("Invalid S3 URL:", error);
+      return { folder: null, filename: null };
+    }
+  };
 
   useEffect(() => {
     if (!folioId) return;
 
-    getCode(); // fetch immediately on mount
-    getImages(); // fetch images on mount
+    getCode();
+    getImages();
 
     const interval = setInterval(() => {
       getCode();
@@ -215,6 +229,7 @@ const FolioPage = ({ params }) => {
             imageList={imageList}
             onUpload={getImages}
             onDownload={downloadFile}
+            // onDelete={deleteFile}
             folioId={folioId}
           />
         )}
