@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useParams } from "next/navigation";
 import { uploadBytes, ref, deleteObject } from "firebase/storage";
 import { storage } from "../../config/config";
@@ -9,6 +9,7 @@ import { Download } from "lucide-react";
 import Container from "../../components/Container";
 import toast from "react-hot-toast";
 import axios from "axios";
+import FullScreenDropzone from "./FullScreenDropZone";
 
 const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
   const [images, setImages] = useState(null);
@@ -90,14 +91,19 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
     setUploadingImagesNames(list);
   };
 
+  // useEffect to log imageList whenever it changes
+  useEffect(() => {
+    if (images && images.length > 0) {
+      joinImageList(images);
+    }
+  }, [images, setImages]);
+
   useEffect(() => {
     console.log("Image List:", imageList);
   }, [imageList]);
   return (
     <div>
-      {/* {alertStatus === "show" && (
-        <Alert message={alertMessage} type={alertType} />
-      )} */}
+      <FullScreenDropzone onDropFiles={(images) => setImages(images)} />
 
       <Container>
         <motion.form

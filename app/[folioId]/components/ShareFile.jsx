@@ -9,6 +9,7 @@ import Container from "../../components/Container";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { cn } from "../../../utils";
+import FullScreenDropzone from "./FullScreenDropZone";
 
 const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
   const [files, setFiles] = useState(null);
@@ -118,8 +119,17 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
     console.log("File List:", fileList);
   }, []);
 
+  useEffect(() => {
+    if (files && files.length > 0) {
+      joinFileList(files);
+    }
+  }, [files, setFiles]);
+
   return (
     <div>
+      {/* Files Dropper */}
+      <FullScreenDropzone onDropFiles={(files) => setFiles(files)} />
+
       {/* =========== UPLOAD BUTTON ============== */}
       <motion.form
         initial={{ scale: 0.7 }}
@@ -165,7 +175,7 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
               </div>
               <button
                 onClick={submitHandler}
-                className="text-slate-50 bg-slate-900 text-sm active:bg-slate-800 border-2 rounded-lg rounded-l-none border-slate-800 m-1 ml-2 px-3 py-[5px]"
+                className="text-slate-50 bg-slate-900 text-sm active:bg-slate-800 border-2 rounded-lg rounded-l-none border-slate-800 m-1 ml-1 px-3 py-[5px] cursor-pointer"
               >
                 Submit
               </button>

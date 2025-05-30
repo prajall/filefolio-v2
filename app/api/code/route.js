@@ -1,19 +1,8 @@
 import Folio from "../models/folio.model";
 import Code from "../models/code.model";
 import { connectDB } from "../utils/db";
-
-export const createCode = async (folioId, code = "") => {
-  try {
-    await connectDB();
-    const codeDoc = new Code({ folioId, code });
-    await codeDoc.save();
-    console.log("Code created:", codeDoc);
-    return codeDoc;
-  } catch (error) {
-    console.error("Error creating code:", error);
-    throw error;
-  }
-};
+import { createCode } from "./utils";
+import { NextResponse } from "next/server";
 
 export const GET = async (request) => {
   try {

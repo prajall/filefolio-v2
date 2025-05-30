@@ -151,11 +151,11 @@ const FolioPage = ({ params }) => {
     getImages();
     getFiles();
 
-    // const interval = setInterval(() => {
-    //   getCode();
-    //   getImages();
-    //   getFiles(); // fetch images every 5 seconds
-    // }, 5000);
+    const interval = setInterval(() => {
+      getCode();
+      // getImages();
+      // getFiles(); // fetch images every 5 seconds
+    }, 5000);
 
     // return () => clearInterval(interval); // cleanup on unmount
   }, [folioId]);
