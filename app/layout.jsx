@@ -19,7 +19,16 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "Filefolio",
+  title: "Filefolio | Easiest way to share files online",
+  keywords: [
+    "file sharing",
+    "online file sharing",
+    "filefolio",
+    "share files",
+    "upload files",
+    "file hosting",
+    "cloud storage",
+  ],
   description: "Filefolio is the simplest way to share files online.",
 };
 

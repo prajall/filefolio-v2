@@ -122,7 +122,7 @@ const FeaturesSection = () => {
               </div>
             ))}
           </div>
-          <div className="text-center mb-16">
+          {/* <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Why Choose Filefolio for File Sharing?
             </h2>
@@ -130,7 +130,7 @@ const FeaturesSection = () => {
               Instantly upload and share files, images, or code snippets without
               creating an account or installing software.
             </p>
-          </div>
+          </div> */}
         </Container>
       </div>
       {/* <p class="text-sm text-center mt-10">
