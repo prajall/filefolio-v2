@@ -192,7 +192,7 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
         {fileList.map((file, index) => {
           return (
             <FilePreview
-              Key={file.filename + file.url + index}
+              key={file.filename + file.url + index}
               file={file}
               onDownload={onDownload}
               onDelete={onDelete}
@@ -211,7 +211,6 @@ const FilePreview = ({ file, onDownload, onDelete, Key }) => {
   return (
     <motion.div
       title={`Download ${file.filename}`}
-      key={Key}
       initial={{ y: 40, opacity: "0.3" }}
       animate={{ y: 0, opacity: 1, transition: 0.6 }}
       className={cn(

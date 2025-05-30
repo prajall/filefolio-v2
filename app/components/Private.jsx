@@ -7,6 +7,7 @@ import { db } from "../config/config";
 import { getDocs, collection, doc, setDoc } from "firebase/firestore";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
+import axios from "axios";
 // import Alert from "./Alert";
 
 const Private = () => {
@@ -31,15 +32,29 @@ const Private = () => {
     filteredData.forEach((data) => {
       if (data.id === params) {
         setPassword(data.password);
-        setIsPrivate(data.private);
+        setIsPrivate(data.locked);
       }
     });
   };
 
-  const handleSave = () => {
-    setDoc(docRef, { private: isPrivate, password: password });
-    setDropdown(false);
-    toast.success("Saved");
+  const handleSave = async () => {
+    try {
+      const response = await axios.put(
+        "/api/folio/lock?folioId=" + params.folioId,
+        {
+          password: password,
+          locked: isPrivate,
+        }
+      );
+      console.log("Response from server:", response.data);
+      if (response.status === 200) {
+        toast.success("Saved");
+        setDropdown(false);
+      }
+    } catch (error) {
+      console.error("Error saving privacy settings:", error);
+      toast.error("Failed to save privacy settings");
+    }
   };
   const handleCheckbox = (e) => {
     setIsPrivate(e.target.checked);
@@ -65,7 +80,7 @@ const Private = () => {
         <Alert message={alertMessage} type={alertType} />
       )} */}
       <div className="flex gap-2">
-        <div className="private-folio border-2 lg:border-none rounded-xl p-1">
+        <div className="locked-folio border-2 lg:border-none rounded-xl p-1">
           <button
             onClick={handleDropdown}
             className="flex p-1 rounded-lg items-center cursor-pointer"
