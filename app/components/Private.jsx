@@ -14,27 +14,26 @@ const Private = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [password, setPassword] = useState("");
   const [dropdown, setDropdown] = useState(false);
-  const [alertStatus, setAlertStatus] = useState("hide");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("");
+
   // const [alert, setAlert] = useState({ status: "hide", message: "", type: "" });
 
   const params = useParams();
-  const docRef = doc(db, "password", params.folioId);
-  const collectionRef = collection(db, "password");
 
   const getPrivate = async () => {
-    const data = await getDocs(collectionRef);
-    const filteredData = data.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    filteredData.forEach((data) => {
-      if (data.id === params) {
-        setPassword(data.password);
-        setIsPrivate(data.locked);
+    try {
+      const response = await axios.get("/api/folio/lock", {
+        params: { folioId: params.folioId },
+      });
+      console.log("Folio response:", response.data);
+      if (response.data) {
+        const { locked } = response.data;
+        setIsPrivate(locked);
+      } else {
+        throw new Error("Folio not found");
       }
-    });
+    } catch (error) {
+      console.error("Error fetching folio:", error);
+    }
   };
 
   const handleSave = async () => {

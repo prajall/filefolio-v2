@@ -97,3 +97,34 @@ export const POST = async (req, res) => {
     );
   }
 };
+
+export const GET = async (req, res) => {
+  const { searchParams } = new URL(req.url);
+  const folioId = searchParams.get("folioId");
+
+  if (!folioId) {
+    return new Response(JSON.stringify({ error: "folioId is required" }), {
+      status: 400,
+    });
+  }
+
+  try {
+    const folio = await folioModel
+      .findOne({ folioId })
+      .select("locked folioId");
+    if (!folio) {
+      return NextResponse.json({ error: "Folio not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { locked: folio.locked, folioId: folio.folioId },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetching folio lock status:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+};
