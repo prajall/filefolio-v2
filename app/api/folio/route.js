@@ -2,6 +2,7 @@ import Folio from "../models/folio.model";
 import Code from "../models/code.model";
 import { connectDB } from "../utils/db";
 import { NextResponse } from "next/server";
+import { createFolio } from "../utils/utils";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
