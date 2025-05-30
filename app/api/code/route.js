@@ -1,7 +1,7 @@
 import Folio from "../models/folio.model";
 import Code from "../models/code.model";
 import { connectDB } from "../utils/db";
-import { createCode } from "./utils";
+import { createCode } from "../utils/utils";
 import { NextResponse } from "next/server";
 
 export const GET = async (request) => {

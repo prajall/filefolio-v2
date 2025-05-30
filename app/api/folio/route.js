@@ -3,19 +3,6 @@ import Code from "../models/code.model";
 import { connectDB } from "../utils/db";
 import { NextResponse } from "next/server";
 
-export const createFolio = async (folioId) => {
-  try {
-    await connectDB();
-    const folio = new Folio({ folioId });
-    await folio.save();
-    console.log("Folio created:", folio);
-    return folio;
-  } catch (error) {
-    console.error("Error creating folio:", error);
-    throw error;
-  }
-};
-
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const folioId = searchParams.get("folioId");
