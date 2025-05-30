@@ -27,8 +27,6 @@ export const GET = async (request) => {
         status: 400,
       });
     }
-    console.log("Fetching code for folioId:", folioId);
-    console.log("Folio model:", Folio);
 
     const code = await Code.findOne({ folioId }).select("code -_id");
     if (!code) {

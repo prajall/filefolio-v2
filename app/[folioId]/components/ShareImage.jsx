@@ -10,7 +10,7 @@ import Container from "../../components/Container";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
+const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
   const [images, setImages] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingImagesNames, setUploadingImagesNames] = useState("");
@@ -23,20 +23,31 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
         setImages(null);
         return; // This now properly exits uploadImages
       }
+      if (image.size > 100 * 1024 * 1024) {
+        // 100MB limit
+        toast.error(` Image size must be less than 100MB.`);
+        return;
+      }
     }
 
     try {
       setIsUploading(true);
-      const res = await axios.post("/api/image", {
+      const res = await axios.post("/api/file", {
         folder: `${folioId}/images`,
-        files: Array.from(images).map((f) => ({ name: f.name, type: f.type })),
+        files: Array.from(images).map((f) => ({
+          name: f.name,
+          type: f.type,
+        })),
       });
-      console.log("Received signed URLs:", res);
+      console.log("Received signed URLs:", res.data);
       const { urls } = res.data;
 
       // Step 2: Upload files to signed URLs
       await Promise.all(
         urls.map(({ url, fileName }) => {
+          console.log("Uploading to URL:", url);
+          console.log("fileName from URL:", fileName);
+          console.log("fileName of file:", images);
           const file = Array.from(images).find((f) => f.name === fileName);
           if (!file) return;
 
@@ -53,6 +64,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
       toast.success(
         `${images.length === 1 ? "Image" : "Images"} uploaded successfully!`
       );
+      onUpload();
     } catch (error) {
       console.log("Error uploading files:", error);
       toast.error("Error uploading files. Please try again.");
@@ -66,18 +78,6 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
   const submitHandler = async () => {
     event.preventDefault();
     uploadImages();
-  };
-
-  const deleteImage = async (name) => {
-    const deleteRef = ref(storage, `${folioId}/images/${name}`);
-    await deleteObject(deleteRef)
-      .then(() => {
-        toast.success("Image deleted");
-      })
-      .catch((err) => {
-        toast.error("Error deleting image");
-      });
-    onUpload();
   };
 
   const joinImageList = (List) => {
@@ -189,7 +189,8 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
                 <motion.button
                   animate={{ y: -5 }}
                   onClick={() => {
-                    deleteImage(image.name);
+                    // deleteImage(image.name);
+                    onDelete(image);
                     // onDownload(false, image.name);
                   }}
                   title="Delete image"
@@ -220,18 +221,3 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId }) => {
 };
 
 export default ShareImage;
-
-export function extractS3PathParts(url) {
-  try {
-    const { pathname } = new URL(url); // e.g., "/test/images/20250409_080511.jpg"
-    const parts = pathname.slice(1).split("/"); // remove leading slash and split
-
-    const filename = parts.pop(); // last part is the filename
-    const folder = parts.join("/"); // remaining parts are the folder path
-
-    return { folder, filename };
-  } catch (error) {
-    console.error("Invalid S3 URL:", error);
-    return { folder: null, filename: null };
-  }
-}

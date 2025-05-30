@@ -24,9 +24,9 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "app/api/image/route.js",
+    "app/api/file/route.js",
     "app/api/code/route.js",
-    "app/api/image/download/route.js"
+    "app/api/file/download/route.js"
   ],
   "exclude": ["node_modules"],
   "paths": {

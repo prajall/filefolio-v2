@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { uploadBytes, ref, deleteObject } from "firebase/storage";
 import { storage } from "../../config/config";
 import { useParams } from "next/navigation";
@@ -7,6 +7,7 @@ import { CirclePlus, Trash, File, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import Container from "../../components/Container";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
   const [files, setFiles] = useState(null);
@@ -16,28 +17,80 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setIsUploading(true);
+    // setIsUploading(true);
 
-    for (let i = 0; i < files.length; i++) {
-      uploadFile(files[i]);
-    }
+    // for (let i = 0; i < files.length; i++) {
+    //   uploadFile(files[i]);
+    // }
+    uploadFiles();
   };
 
-  const uploadFile = async (f) => {
-    if (f.size > 104857600) {
-      toast.error("File must be less than 100mb");
-      setIsUploading(false);
-      return;
-    }
-    const fileRef = ref(storage, `${params}/files/${f.name}`);
-    await uploadBytes(fileRef, f).then(() => {
-      toast.success("File Uploaded");
+  const uploadFiles = async () => {
+    if (!files) return;
 
-      setFiles(null);
+    for (const file of Array.from(files)) {
+      if (file.size > 100 * 1024 * 1024) {
+        toast.error("File size must be less than 100MB.");
+        setFiles(null);
+        return;
+      }
+    }
+    console.log("Uploading files:", files);
+
+    try {
+      setIsUploading(true);
+      // Request signed URLs for each file
+      const res = await axios.post("/api/file", {
+        folder: `${folioId}/files`,
+        files: Array.from(files).map((f) => ({
+          name: f.name,
+          type: f.type,
+        })),
+      });
+      const { urls } = res.data;
+
+      // Upload files to signed URLs
+      const response = await Promise.all(
+        urls.map(({ url, fileName }) => {
+          const file = Array.from(files).find((f) => f.name === fileName);
+          if (!file) return;
+          return axios.put(url, file, {
+            headers: {
+              "Content-Type": file.type,
+            },
+          });
+        })
+      );
+      console.log("Upload responses:", response);
+      toast.success(
+        `${files.length === 1 ? "File" : "Files"} uploaded successfully!`
+      );
       onUpload();
+    } catch (error) {
+      console.log("Error uploading files:", error);
+      toast.error("Error uploading files. Please try again.");
+    } finally {
       setIsUploading(false);
-    });
+      setFiles(null);
+      setUploadingFilesNames("");
+    }
   };
+
+  // const uploadFile = async (f) => {
+  //   if (f.size > 104857600) {
+  //     toast.error("File must be less than 100mb");
+  //     setIsUploading(false);
+  //     return;
+  //   }
+  //   const fileRef = ref(storage, `${params}/files/${f.name}`);
+  //   await uploadBytes(fileRef, f).then(() => {
+  //     toast.success("File Uploaded");
+
+  //     setFiles(null);
+  //     onUpload();
+  //     setIsUploading(false);
+  //   });
+  // };
 
   const deleteFile = async (name) => {
     const deleteRef = ref(storage, `${params}/files/${name}`);
@@ -58,6 +111,10 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
     }
     setUploadingFilesNames(list);
   };
+
+  useEffect(() => {
+    console.log("File List:", fileList);
+  }, []);
 
   return (
     <div>
@@ -133,7 +190,7 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
         {fileList.map((file) => {
           return (
             <motion.div
-              key={file.url}
+              key={file}
               initial={{ y: 40, opacity: "0.3" }}
               animate={{ y: 0, opacity: 1, transition: 0.6 }}
               className="flex w-full overflow-x-hidden whitespace-nowrap items-center my-2 cursor-pointer hover:bg-gray-300 hover:bg-opacity-25 rounded-xl p-2 "
@@ -143,7 +200,7 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
             >
               <File size={"20px"} />
               <p className="ml-1 w-[90%] overflow-x-hidden whitespace-nowrap">
-                {file.name}
+                {file}
               </p>
               <button
                 // onClick={() => deleteFile(file.name)}

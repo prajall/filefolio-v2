@@ -12,6 +12,7 @@ import Navbar2 from "../components/Navbar2";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { get } from "mongoose";
+import { extractS3PathParts } from "../../utils/index";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
@@ -23,7 +24,7 @@ const FolioPage = ({ params }) => {
   const docRef = doc(db, "folio", folioId);
 
   const getCode = async () => {
-    console.log("Fetching code from client for folioId:", folioId);
+    // console.log("Fetching code from client for folioId:", folioId);
     try {
       const response = await axios.get("/api/code", {
         params: { folioId },
@@ -31,7 +32,6 @@ const FolioPage = ({ params }) => {
           "Content-Type": "application/json",
         },
       });
-      console.log("Response:", response);
 
       setCode(response.data?.code);
     } catch (error) {
@@ -43,13 +43,12 @@ const FolioPage = ({ params }) => {
   const getImages = async () => {
     // toast.loading("Loading Images...");
     try {
-      const response = await axios.get("/api/image", {
+      const response = await axios.get("/api/file", {
         params: { folder: `${folioId}/images` },
         headers: {
           "Content-Type": "application/json",
         },
       });
-      console.log("Response of fetch Images:", response);
       setImageList(response.data?.urls || []);
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -58,28 +57,30 @@ const FolioPage = ({ params }) => {
     // toast.dismiss();
   };
   const getFiles = async () => {
-    toast.loading("Loading Files...");
-    const folderRef = ref(storage, `${folioId}/files`);
-
+    // toast.loading("Loading Files...");
     try {
-      const response = await listAll(folderRef);
-      const filePromises = response.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        return { url, name: item.name };
+      const response = await axios.get("/api/file", {
+        params: { folder: `${folioId}/files` },
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      const files = await Promise.all(filePromises);
-      setFileList(files);
+      const urls = response.data?.urls || [];
+      const fileNames = urls.map((url) => {
+        const { filename } = extractS3PathParts(url);
+        return filename;
+      });
+      setFileList(fileNames);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching files:", error);
+      toast.error("Failed to fetch files.");
     }
-    toast.dismiss();
+    // toast.dismiss();
   };
 
   const downloadFile = async (url) => {
     try {
-      const { folder, filename } = await extractS3PathParts(url);
-
-      console.log("Extracted folder:", folder, "filename:", filename);
+      const { folder, filename } = extractS3PathParts(url);
 
       if (!folder || !filename) {
         toast.error("Invalid file URL.");
@@ -116,46 +117,44 @@ const FolioPage = ({ params }) => {
 
   const deleteFile = async (url) => {
     try {
+      console.log(url);
       const { folder, filename } = extractS3PathParts(url);
+
+      console.log(folder, filename);
 
       if (!folder || !filename) {
         toast.error("Invalid file URL.");
         return;
       }
 
-      const res = await fetch(
-        `/api/delete?folder=${folder}&filename=${encodeURIComponent(filename)}`,
-        {
-          method: "DELETE",
-        }
+      const res = await axios.delete(
+        `/api/delete?folder=${folder}&filename=${filename}`
       );
 
-      const data = await res.json();
+      console.log("Delete response:", res);
+      const data = res.data;
 
-      if (!res.ok) {
+      if (!res.data?.success) {
         toast.error(data.error || "Delete failed.");
         return;
       }
 
-      toast.success("File deleted successfully.");
+      toast.success(
+        `${activeTab === "image" ? "Image" : "File"} deleted successfully.`
+      );
+      if (activeTab === "image") {
+        const newList = imageList.filter((image) => image !== url);
+        setImageList(newList); // Update image list without the deleted image
+        getImages(); // Refresh image list
+      }
+      if (activeTab === "file") {
+        const newList = fileList.filter((file) => file !== url);
+        setFileList(newList);
+        getFiles(); // Refresh file list
+      }
     } catch (error) {
       console.error("Delete failed:", error);
       toast.error("Something went wrong while deleting.");
-    }
-  };
-
-  const extractS3PathParts = async (url) => {
-    try {
-      const { pathname } = new URL(url); // e.g., "/test/images/20250409_080511.jpg"
-      const parts = pathname.slice(1).split("/"); // remove leading slash and split
-
-      const filename = parts.pop(); // last part is the filename
-      const folder = parts.join("/"); // remaining parts are the folder path
-
-      return { folder, filename };
-    } catch (error) {
-      console.error("Invalid S3 URL:", error);
-      return { folder: null, filename: null };
     }
   };
 
@@ -164,13 +163,15 @@ const FolioPage = ({ params }) => {
 
     getCode();
     getImages();
+    getFiles();
 
-    const interval = setInterval(() => {
-      getCode();
-      getImages(); // fetch images every 5 seconds
-    }, 5000);
+    // const interval = setInterval(() => {
+    //   getCode();
+    //   getImages();
+    //   getFiles(); // fetch images every 5 seconds
+    // }, 5000);
 
-    return () => clearInterval(interval); // cleanup on unmount
+    // return () => clearInterval(interval); // cleanup on unmount
   }, [folioId]);
 
   useEffect(() => {
@@ -229,7 +230,7 @@ const FolioPage = ({ params }) => {
             imageList={imageList}
             onUpload={getImages}
             onDownload={downloadFile}
-            // onDelete={deleteFile}
+            onDelete={deleteFile}
             folioId={folioId}
           />
         )}
@@ -238,6 +239,8 @@ const FolioPage = ({ params }) => {
             fileList={fileList}
             onUpload={getFiles}
             onDownload={downloadFile}
+            folioId={folioId}
+            onDelete={deleteFile}
           />
         )}
       </motion.div>

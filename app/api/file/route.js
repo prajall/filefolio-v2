@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getMultiplePutUrls, listImagesFromFolder } from "../utils/s3"; // Adjust the import path as necessary
 
 export const POST = async (req) => {
-  console.log(req);
   const { folder, files } = await req.json(); // files has {name, type} structure
 
   console.log("Received folder:", folder);
