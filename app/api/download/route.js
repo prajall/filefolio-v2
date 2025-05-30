@@ -13,17 +13,17 @@ export const GET = async (req) => {
         { status: 400 }
       );
     }
+    console.log("Downloading file from folder:", folder, "filename:", filename);
 
-    const decodedFilename = decodeURIComponent(filename);
     const { stream, contentType, contentLength } = await streamFileFromS3(
       folder,
-      decodedFilename
+      filename
     );
 
     return new Response(stream, {
       headers: {
         "Content-Type": contentType || "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${decodedFilename}"`,
+        "Content-Disposition": `attachment; filename="${filename}"`,
         "Content-Length": contentLength?.toString() || undefined,
       },
     });

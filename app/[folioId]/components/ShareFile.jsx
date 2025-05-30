@@ -8,12 +8,14 @@ import { motion } from "framer-motion";
 import Container from "../../components/Container";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { cn } from "../../../utils";
 
-const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
+const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
   const [files, setFiles] = useState(null);
   const params = useParams().id;
   const [isUploading, setIsUploading] = useState(false);
   const [uploadingFilesNames, setUploadingFilesNames] = useState("");
+  const [disabled, setDisabled] = useState("");
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -187,29 +189,14 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
       )}
       {/* ============= FILE PREVIEWS =============== */}
       <div className="md:w-1/2 mx-auto">
-        {fileList.map((file) => {
+        {fileList.map((file, index) => {
           return (
-            <motion.div
-              key={file}
-              initial={{ y: 40, opacity: "0.3" }}
-              animate={{ y: 0, opacity: 1, transition: 0.6 }}
-              className="flex w-full overflow-x-hidden whitespace-nowrap items-center my-2 cursor-pointer hover:bg-gray-300 hover:bg-opacity-25 rounded-xl p-2 "
-              onClick={() => {
-                onDownload(true, file.name);
-              }}
-            >
-              <File size={"20px"} />
-              <p className="ml-1 w-[90%] overflow-x-hidden whitespace-nowrap">
-                {file}
-              </p>
-              <button
-                // onClick={() => deleteFile(file.name)}
-                // onClick = {()=>{onDownload}}
-                className=" p-1 hover:bg-slate-50 rounded-md hover:bg-opacity-50"
-              >
-                <Trash size={"20px"} />
-              </button>
-            </motion.div>
+            <FilePreview
+              Key={file.filename + file.url + index}
+              file={file}
+              onDownload={onDownload}
+              onDelete={onDelete}
+            />
           );
         })}
       </div>
@@ -218,3 +205,56 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId }) => {
 };
 
 export default ShareFile;
+
+const FilePreview = ({ file, onDownload, onDelete, Key }) => {
+  const [disabled, setDisabled] = useState(false);
+  return (
+    <motion.div
+      title={`Download ${file.filename}`}
+      key={Key}
+      initial={{ y: 40, opacity: "0.3" }}
+      animate={{ y: 0, opacity: 1, transition: 0.6 }}
+      className={cn(
+        "group flex w-full overflow-x-hidden whitespace-nowrap items-center my-2 p-2 rounded-xl",
+        disabled
+          ? "cursor-not-allowed text-gray-400 bg-opacity-10"
+          : "cursor-pointer hover:bg-gray-300 hover:bg-opacity-25"
+      )}
+      onClick={() => {
+        if (disabled) return;
+        onDownload(file.url);
+        setDisabled(true);
+        setTimeout(() => setDisabled(false), 1000);
+      }}
+    >
+      {/* Icon swap on hover using group-hover */}
+      <div className="relative w-[20px] h-[20px] mr-1">
+        <File
+          size={20}
+          className="absolute top-0 left-0 group-hover:opacity-0 transition-opacity duration-200"
+        />
+        <Download
+          size={20}
+          className="absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        />
+      </div>
+
+      <p className="ml-1 w-[90%] overflow-x-hidden whitespace-nowrap">
+        {file.filename}
+      </p>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setDisabled(true);
+          onDelete(file.url);
+          setTimeout(() => setDisabled(false), 1000);
+        }}
+        className="p-1 hover:bg-slate-50 rounded-md hover:bg-opacity-50 hover:text-red-500 active:bg-opacity-75 cursor-pointer duration-200 ml-auto"
+        title="Delete file"
+      >
+        <Trash size={20} />
+      </button>
+    </motion.div>
+  );
+};

@@ -68,7 +68,7 @@ const FolioPage = ({ params }) => {
       const urls = response.data?.urls || [];
       const fileNames = urls.map((url) => {
         const { filename } = extractS3PathParts(url);
-        return filename;
+        return { filename: decodeURIComponent(filename), url };
       });
       setFileList(fileNames);
     } catch (error) {
@@ -78,41 +78,27 @@ const FolioPage = ({ params }) => {
     // toast.dismiss();
   };
 
-  const downloadFile = async (url) => {
-    try {
-      const { folder, filename } = extractS3PathParts(url);
+  const downloadFile = (url) => {
+    const { folder, filename } = extractS3PathParts(url);
 
-      if (!folder || !filename) {
-        toast.error("Invalid file URL.");
-        return;
-      }
-
-      // Hit your backend API that streams the file from S3
-      const res = await fetch(
-        `/api/download?folder=${folder}&filename=${filename}`
-      );
-      console.log(res);
-      if (!res.ok) {
-        toast.error("Failed to download file.");
-        return;
-      }
-
-      const blob = await res.blob(); // Convert stream to Blob
-
-      // Create a temporary <a> element to trigger download
-      const downloadUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      URL.revokeObjectURL(downloadUrl); // Clean up
-    } catch (error) {
-      console.error("Download failed:", error);
-      toast.error("Something went wrong while downloading.");
+    if (!folder || !filename) {
+      toast.error("Invalid file URL.");
+      return;
     }
+
+    // Create a direct URL to the streaming API
+    const apiUrl = `/api/download?folder=${encodeURIComponent(
+      folder
+    )}&filename=${encodeURIComponent(filename)}`;
+
+    // Create and trigger <a> tag to start streaming download
+    toast.success("Downloading file...");
+    const a = document.createElement("a");
+    a.href = apiUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   const deleteFile = async (url) => {
