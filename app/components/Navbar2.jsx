@@ -5,10 +5,10 @@ import Private from "./Private";
 
 const Navbar2 = () => {
   return (
-    <div className="w-full flex items-center py-5 z-20">
+    <div className="w-full flex items-center py-5 z-20 ">
       <div className="w-10/12 mx-auto flex justify-between">
         {/* <Container> */}
-        <div className="w-fit">
+        <div className="w-fit  mt-2">
           {/* <Link href="/"> */}
           <Logo />
           {/* </Link> */}

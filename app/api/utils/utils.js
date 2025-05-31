@@ -1,4 +1,5 @@
 import folioModel from "../models/folio.model";
+import { connectDB } from "./db";
 
 export const createCode = async (folioId, code = "") => {
   try {
