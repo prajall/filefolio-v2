@@ -1,14 +1,11 @@
-import React, { useState, useEffect, use } from "react";
-import { useParams } from "next/navigation";
-import { uploadBytes, ref, deleteObject } from "firebase/storage";
-import { storage } from "../../config/config";
 import { CirclePlus, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import axios from "axios";
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
-import Container from "../../components/Container";
 import toast from "react-hot-toast";
-import axios from "axios";
+import Container from "../../components/Container";
 import FullScreenDropzone from "./FullScreenDropZone";
 
 const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
@@ -193,19 +190,17 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
                 />
                 {/* <div className="absolute bottom-10 left-0 z-20"> */}
                 <motion.button
-                  animate={{ y: -5 }}
                   onClick={() => {
                     // deleteImage(image.name);
                     onDelete(image);
                     // onDownload(false, image.name);
                   }}
                   title="Delete image"
-                  className=" group-hover:flex hidden cursor-pointer items-center justify-center absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-800 hover:bg-slate-700 hover:bg-opacity-75 bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
+                  className=" group-hover:flex hidden cursor-pointer items-center justify-center absolute top-[10px] right-[10px] z-10 lg:hidden bg-slate-800/70 hover:bg-slate-700 hover:bg-opacity-75 bg-opacity-75 text-slate-50 active:bg-popacity active:text-slate-600 w-14 h-[35px] rounded-xl duration-300"
                 >
                   <Trash size={"20px"} />
                 </motion.button>
                 <motion.button
-                  animate={{ y: -5 }}
                   onClick={() => {
                     // deleteImage(image.name);
                     onDownload(image);

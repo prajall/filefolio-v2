@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Lock } from "lucide-react";
-import { ChevronDown } from "lucide-react";
-import { Copy } from "lucide-react";
-import { motion } from "framer-motion";
-import { db } from "../config/config";
-import { getDocs, collection, doc, setDoc } from "firebase/firestore";
-import { useParams } from "next/navigation";
-import toast from "react-hot-toast";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { ChevronDown, Copy, Lock } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 // import Alert from "./Alert";
 
 const Private = () => {

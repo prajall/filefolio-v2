@@ -1,18 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { db } from "../config/config";
-import { getDocs, collection, doc, onSnapshot } from "firebase/firestore";
-import { ref, getDownloadURL, listAll } from "firebase/storage";
-import { storage } from "../config/config";
+import axios from "axios";
 import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { extractS3PathParts } from "../../utils/index";
+import Navbar2 from "../components/Navbar2";
 import ShareCode from "./components/ShareCode";
 import ShareFile from "./components/ShareFile";
 import ShareImage from "./components/ShareImage";
-import Navbar2 from "../components/Navbar2";
-import toast from "react-hot-toast";
-import axios from "axios";
-import { get } from "mongoose";
-import { extractS3PathParts } from "../../utils/index";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
@@ -21,7 +16,6 @@ const FolioPage = ({ params }) => {
   const [activeTab, setActiveTab] = useState("code");
 
   const { folioId } = React.use(params);
-  const docRef = doc(db, "folio", folioId);
 
   const getCode = async () => {
     // console.log("Fetching code from client for folioId:", folioId);
@@ -159,16 +153,6 @@ const FolioPage = ({ params }) => {
 
     // return () => clearInterval(interval); // cleanup on unmount
   }, [folioId]);
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        setCode(docSnapshot.data());
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   return (
     <>

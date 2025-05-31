@@ -1,13 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { uploadBytes, ref, deleteObject } from "firebase/storage";
-import { storage } from "../../config/config";
-import { useParams } from "next/navigation";
-import { CirclePlus, Trash, File, Download } from "lucide-react";
-import { motion } from "framer-motion";
-import Container from "../../components/Container";
-import toast from "react-hot-toast";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { CirclePlus, Download, File, Trash } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { cn } from "../../../utils";
 import FullScreenDropzone from "./FullScreenDropZone";
 
@@ -79,34 +76,6 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
     }
   };
 
-  // const uploadFile = async (f) => {
-  //   if (f.size > 104857600) {
-  //     toast.error("File must be less than 100mb");
-  //     setIsUploading(false);
-  //     return;
-  //   }
-  //   const fileRef = ref(storage, `${params}/files/${f.name}`);
-  //   await uploadBytes(fileRef, f).then(() => {
-  //     toast.success("File Uploaded");
-
-  //     setFiles(null);
-  //     onUpload();
-  //     setIsUploading(false);
-  //   });
-  // };
-
-  const deleteFile = async (name) => {
-    const deleteRef = ref(storage, `${params}/files/${name}`);
-    await deleteObject(deleteRef)
-      .then(() => {
-        toast.success("File Deleted");
-      })
-      .catch((err) => {
-        toast.error(err.message);
-      });
-    onUpload();
-  };
-
   const joinFileList = (List) => {
     let list = List[0].name;
     for (let i = 1; i < List.length; i++) {
@@ -158,7 +127,7 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
         {/* ================== SUBMIT BUTTON =================== */}
         {files && !isUploading && (
           <>
-            <div className="flex items-center w-fit m-auto ">
+            <div className="flex items-center w-fit my-7 m-auto ">
               <div className="flex item-center justify-between border rounded-lg rounded-r-none px-2 py-1 ">
                 <p className="mr-3 w-[180px] whitespace-nowrap overflow-hidden">
                   {/* {files.length > 1 && file.name + " , ..."}
@@ -170,7 +139,10 @@ const ShareFile = ({ fileList, onUpload, onDownload, folioId, onDelete }) => {
                     setFiles(null);
                   }}
                 >
-                  <CirclePlus size={"20px"} />
+                  <CirclePlus
+                    size={"20px"}
+                    className="rotate-45 cursor-pointer text-slate-700 hover:text-slate-950"
+                  />
                 </button>
               </div>
               <button

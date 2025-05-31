@@ -1,23 +1,29 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { db } from "../config/config";
-import { getDocs, collection } from "firebase/firestore";
-import { Loader2, Lock } from "lucide-react";
-import Navbar from "../components/Navbar";
-import toast from "react-hot-toast";
 import axios from "axios";
-import { set } from "mongoose";
+import { Loader2, Lock } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import Navbar from "../components/Navbar";
 
 export default function FolioLayout({ children, params }) {
-  const [password, setPassword] = useState("");
-  const [isLocked, setIsLocked] = useState(null);
   const [loading, setLoading] = useState(true);
   const [unlock, setUnlock] = useState(null);
   const [passwordInput, setPasswordInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const inputRef = React.useRef(null);
+  const handleFocus = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+  useEffect(() => {
+    if (!loading && unlock === false && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [loading, unlock]);
+
   const { folioId } = React.use(params);
-  const passwordCollectionRef = collection(db, "password");
 
   const checkPrivacy = async () => {
     setLoading(true);
@@ -27,9 +33,7 @@ export default function FolioLayout({ children, params }) {
       });
       console.log("Folio response:", response.data);
       if (response.data?.folio) {
-        const { password, locked } = response.data.folio;
-        setPassword(password);
-        setIsLocked(locked);
+        const { locked } = response.data.folio;
         if (locked) {
           setUnlock(false);
         } else {
@@ -109,6 +113,7 @@ export default function FolioLayout({ children, params }) {
               onSubmit={handlePasswordSubmit}
             >
               <input
+                ref={inputRef}
                 type="password"
                 className="border p-2 mt-3 text-sm rounded-lg w-full"
                 placeholder="Password"

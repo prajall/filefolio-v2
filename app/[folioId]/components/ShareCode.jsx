@@ -1,10 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { setDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
 // import Alert from "../components/Alert";
+import axios from "axios";
 import { Copy } from "lucide-react";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 
 const ShareCode = ({ data = "", folioId }) => {
   const [message, setMessage] = useState(data || "");
