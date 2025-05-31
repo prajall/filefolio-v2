@@ -6,8 +6,8 @@ import { Copy } from "lucide-react";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 
-const ShareCode = ({ data, folioId }) => {
-  const [message, setMessage] = useState("");
+const ShareCode = ({ data = "", folioId }) => {
+  const [message, setMessage] = useState(data || "");
 
   const handleSubmit = async () => {
     event.preventDefault();
@@ -28,10 +28,6 @@ const ShareCode = ({ data, folioId }) => {
     console.log("Data received in ShareCode:", data);
     setMessage(data);
   }, [data]);
-
-  useEffect(() => {
-    setMessage(data);
-  }, []);
 
   return (
     <div>

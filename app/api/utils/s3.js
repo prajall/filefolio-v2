@@ -67,7 +67,7 @@ export const getMultiplePutUrls = async (folder, files) => {
   }
 };
 
-export const listImagesFromFolder = async (folderPrefix) => {
+export const listFilesFromFolder = async (folderPrefix) => {
   try {
     const command = new ListObjectsV2Command({
       Bucket: "filefolio-prajalmaharjan",
@@ -76,15 +76,15 @@ export const listImagesFromFolder = async (folderPrefix) => {
 
     const { Contents } = await s3Client.send(command);
 
-    if (!Contents) return [];
+    if (!Contents || !Array.isArray(Contents)) return [];
 
-    const imageUrls = Contents.map((item) => {
+    const fileUrls = Contents.map((item) => {
       return `https://filefolio-prajalmaharjan.s3.ap-south-1.amazonaws.com/${item.Key}`;
     });
-    const filteredUrls = imageUrls.slice(1);
-    return filteredUrls ? filteredUrls : []; // Ensure we return an array
+    console.log("File URLs:", fileUrls);
+    return fileUrls ? fileUrls : []; // Ensure we return an array
   } catch (error) {
-    console.error("Error listing S3 images:", error);
+    console.error("Error listing S3 files:", error);
     throw error;
   }
 };
