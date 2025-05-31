@@ -12,11 +12,7 @@ export default function FolioLayout({ children, params }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputRef = React.useRef(null);
-  const handleFocus = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
+
   useEffect(() => {
     if (!loading && unlock === false && inputRef.current) {
       inputRef.current.focus();

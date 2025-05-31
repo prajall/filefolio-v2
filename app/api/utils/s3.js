@@ -17,7 +17,7 @@ export const s3Client = new S3Client({
 
 export const getObjectUrl = async (key) => {
   const command = new GetObjectCommand({
-    Bucket: "filefolio-prajalmaharjan",
+    Bucket: "filefolio.maharjanprajal",
     Key: key,
   });
   const url = getSignedUrl(s3Client, command);
@@ -27,7 +27,7 @@ export const getObjectUrl = async (key) => {
 export const putObjectUrl = async (url, fileName, contentType) => {
   try {
     const command = new PutObjectCommand({
-      Bucket: "filefolio-prajalmaharjan",
+      Bucket: "filefolio.maharjanprajal",
       Key: `${url}/${fileName}`,
       ContentType: contentType,
     });
@@ -45,7 +45,7 @@ export const getMultiplePutUrls = async (folder, files) => {
     const urls = await Promise.all(
       files.map(async (file) => {
         const command = new PutObjectCommand({
-          Bucket: "filefolio-prajalmaharjan",
+          Bucket: "filefolio.maharjanprajal",
           Key: `${folder}/${file.name}`,
           ContentType: file.type,
         });
@@ -70,7 +70,7 @@ export const getMultiplePutUrls = async (folder, files) => {
 export const listFilesFromFolder = async (folderPrefix) => {
   try {
     const command = new ListObjectsV2Command({
-      Bucket: "filefolio-prajalmaharjan",
+      Bucket: "filefolio.maharjanprajal",
       Prefix: folderPrefix, // e.g., 'prajal/images/'
     });
 
@@ -79,7 +79,7 @@ export const listFilesFromFolder = async (folderPrefix) => {
     if (!Contents || !Array.isArray(Contents)) return [];
 
     const fileUrls = Contents.map((item) => {
-      return `https://filefolio-prajalmaharjan.s3.ap-south-1.amazonaws.com/${item.Key}`;
+      return `https://filefolio.maharjanprajal.s3.ap-south-1.amazonaws.com/${item.Key}`;
     });
     console.log("File URLs:", fileUrls);
     return fileUrls ? fileUrls : []; // Ensure we return an array
@@ -91,7 +91,7 @@ export const listFilesFromFolder = async (folderPrefix) => {
 
 export const streamFileFromS3 = async (spaceId, filename) => {
   const command = new GetObjectCommand({
-    Bucket: "filefolio-prajalmaharjan",
+    Bucket: "filefolio.maharjanprajal",
     Key: `${spaceId}/${filename}`,
   });
 
@@ -110,7 +110,7 @@ export async function deleteFileFromS3(folder, filename) {
 
   try {
     const command = new DeleteObjectCommand({
-      Bucket: "filefolio-prajalmaharjan",
+      Bucket: "filefolio.maharjanprajal",
       Key,
     });
 
