@@ -98,6 +98,7 @@ const ShareImage = ({ imageList, onUpload, onDownload, folioId, onDelete }) => {
   useEffect(() => {
     console.log("Image List:", imageList);
   }, [imageList]);
+
   return (
     <div>
       <FullScreenDropzone onDropFiles={(images) => setImages(images)} />

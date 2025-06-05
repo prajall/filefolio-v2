@@ -79,7 +79,8 @@ export const listFilesFromFolder = async (folderPrefix) => {
     if (!Contents || !Array.isArray(Contents)) return [];
 
     const fileUrls = Contents.map((item) => {
-      return `https://filefolio.maharjanprajal.s3.ap-south-1.amazonaws.com/${item.Key}`;
+      // return `https://filefolio.maharjanprajal.s3.ap-south-1.amazonaws.com/${item.Key}`;
+      return `https://d14lpvkf6jz94c.cloudfront.net/${item.Key}`;
     });
     console.log("File URLs:", fileUrls);
     return fileUrls ? fileUrls : []; // Ensure we return an array
