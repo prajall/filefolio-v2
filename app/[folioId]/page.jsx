@@ -18,7 +18,6 @@ const FolioPage = ({ params }) => {
   const { folioId } = React.use(params);
 
   const getCode = async () => {
-    // console.log("Fetching code from client for folioId:", folioId);
     try {
       const response = await axios.get("/api/code", {
         params: { folioId },
@@ -35,7 +34,6 @@ const FolioPage = ({ params }) => {
   };
 
   const getImages = async () => {
-    // toast.loading("Loading Images...");
     try {
       const response = await axios.get("/api/file", {
         params: { folder: `${folioId}/images` },
@@ -219,5 +217,3 @@ const FolioPage = ({ params }) => {
 };
 
 export default FolioPage;
-// dfskjdflskdjflkj
-// lsflskdj
