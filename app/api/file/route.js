@@ -43,9 +43,11 @@ export const GET = async (req) => {
 
   try {
     console.log("Retrieving files from folder:", folder);
-    const urls = await listFilesFromFolder(folder);
-    console.log("Retrieved URLs:", urls);
-    return NextResponse.json({ urls }, { status: 200 });
+    // const urls = await listFilesFromFolder(folder);
+    // console.log("Retrieved URLs:", urls);
+    // return NextResponse.json({ urls }, { status: 200 });
+
+    return NextResponse.json({ urls: [] }, { status: 200 });
   } catch (err) {
     console.log("Error generating upload URLs:", err);
     return NextResponse.json(

@@ -8,6 +8,7 @@ import Navbar2 from "../components/Navbar2";
 import ShareCode from "./components/ShareCode";
 import ShareFile from "./components/ShareFile";
 import ShareImage from "./components/ShareImage";
+import LiveShare from "./components/LiveShare";
 
 const FolioPage = ({ params }) => {
   const [code, setCode] = useState({});
@@ -143,11 +144,11 @@ const FolioPage = ({ params }) => {
     getImages();
     getFiles();
 
-    const interval = setInterval(() => {
-      getCode();
-      // getImages();
-      // getFiles(); // fetch images every 5 seconds
-    }, 5000);
+    // const interval = setInterval(() => {
+    // getCode();
+    // getImages();
+    // getFiles(); // fetch images every 5 seconds
+    // }, 5000);
 
     // return () => clearInterval(interval); // cleanup on unmount
   }, [folioId]);
@@ -191,6 +192,16 @@ const FolioPage = ({ params }) => {
           >
             Files
           </button>
+          <button
+            onClick={() => setActiveTab("liveShare")}
+            className={
+              activeTab === "liveShare"
+                ? "mx-1 p-2 font-bold underline underline-offset-8 duration-300"
+                : "mx-1 p-2 duration-300 cursor-pointer"
+            }
+          >
+            Live Share
+          </button>
         </div>
         {activeTab === "code" && <ShareCode data={code} folioId={folioId} />}
         {activeTab === "image" && (
@@ -211,6 +222,8 @@ const FolioPage = ({ params }) => {
             onDelete={deleteFile}
           />
         )}
+
+        {activeTab === "liveShare" && <LiveShare folioId={folioId} />}
       </motion.div>
     </>
   );
